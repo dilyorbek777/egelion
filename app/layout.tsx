@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "@/components/header";
+import ProfileGuard from "@/components/ProfileGuard";
 import { Toaster } from "@/components/ui/sonner";
 
 const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans', weight: ['400', '500', '600', '700'] });
@@ -28,9 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             disableTransitionOnChange
           >
             <ConvexClientProvider>
-              <Header />
-              <main>{children}</main>
-              <Toaster />
+              <ProfileGuard>
+                <Header />
+                <main>{children}</main>
+                <Toaster />
+              </ProfileGuard>
             </ConvexClientProvider>
           </ThemeProvider>
         </body>

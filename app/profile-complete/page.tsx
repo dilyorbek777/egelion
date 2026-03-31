@@ -3,7 +3,7 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUploadThing } from "@/lib/uploadthing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ export default function ProfileCompletePage() {
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const { startUpload } = useUploadThing("profileImage");
 
@@ -58,7 +59,7 @@ export default function ProfileCompletePage() {
   };
 
   const handleUsernameFocus = () => {
-    if (!username && fullName) {
+    if (!username && fullName.trim()) {
       const newSuggestions = generateSuggestions(fullName);
       setSuggestions(newSuggestions);
       setShowSuggestions(true);
@@ -80,7 +81,7 @@ export default function ProfileCompletePage() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showSuggestions) {
+      if (showSuggestions && suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
         setSuggestions([]);
       }
@@ -191,19 +192,26 @@ export default function ProfileCompletePage() {
             
             {/* Suggestions dropdown */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-                {checkAvailability?.map(({ username: suggestion, available }) => (
-                  <div
-                    key={suggestion}
-                    onClick={() => available && selectSuggestion(suggestion)}
-                    className={`px-3 py-2 cursor-pointer hover:bg-muted text-sm ${
-                      !available ? 'text-muted-foreground cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {suggestion}
-                    {!available && <span className="ml-2 text-xs">(taken)</span>}
-                  </div>
-                ))}
+              <div
+                ref={suggestionsRef}
+                className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto"
+              >
+                {!checkAvailability ? (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">Checking availability...</div>
+                ) : (
+                  checkAvailability.map(({ username: suggestion, available }) => (
+                    <div
+                      key={suggestion}
+                      onClick={() => available && selectSuggestion(suggestion)}
+                      className={`px-3 py-2 cursor-pointer hover:bg-muted text-sm ${
+                        !available ? 'text-muted-foreground cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {suggestion}
+                      {!available && <span className="ml-2 text-xs">(taken)</span>}
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>

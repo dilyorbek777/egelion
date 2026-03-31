@@ -86,7 +86,8 @@ export default function SignInPage() {
 
               {/* Sign-in header */}
               <SignIn
-                appearance={{ CLERK_APPEARANCE }}
+                appearance={CLERK_APPEARANCE}
+                fallbackRedirectUrl="/profile-complete"
               />
             </div>
           </div>

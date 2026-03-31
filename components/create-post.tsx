@@ -12,13 +12,20 @@ export function CreatePost() {
   const { user } = useUser();
   const createPost = useMutation(api.posts.create);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadComplete, setUploadComplete] = useState<boolean>(false);
   const { startUpload, isUploading } = useUploadThing("postMedia", {
     onClientUploadComplete: () => {
       setUploadError(null);
+      setUploadComplete(true);
     },
     onUploadError: (err) => {
       setUploadError(err.message || "Upload failed - server error");
       console.error("Upload error:", err);
+    },
+    onUploadProgress: (progress) => {
+      setUploadProgress(progress);
+      setUploadComplete(false);
     },
   });
 
@@ -32,6 +39,8 @@ export function CreatePost() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadError(null);
+    setUploadProgress(0);
+    setUploadComplete(false);
     setMediaFile(file);
     setMediaPreview(URL.createObjectURL(file));
     setMediaType(file.type.startsWith("video") ? "video" : "image");
@@ -73,6 +82,8 @@ export function CreatePost() {
       setMediaFile(null);
       setMediaPreview(null);
       setMediaType(null);
+      setUploadProgress(0);
+      setUploadComplete(false);
     } catch (error) {
       console.error("Error creating post:", error);
       // You might want to show an error message to the user here
@@ -106,11 +117,29 @@ export function CreatePost() {
           )}
           <button
             type="button"
-            onClick={() => { setMediaFile(null); setMediaPreview(null); setMediaType(null); setUploadError(null); }}
+            onClick={() => { setMediaFile(null); setMediaPreview(null); setMediaType(null); setUploadError(null); setUploadProgress(0); setUploadComplete(false); }}
             className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1"
           >
             <X className="w-4 h-4" />
           </button>
+          {isUploading && (
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 rounded-b-lg">
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-2 bg-white/30 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-200"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium">{Math.round(uploadProgress)}%</span>
+              </div>
+            </div>
+          )}
+          {uploadComplete && !isUploading && (
+            <div className="absolute bottom-0 left-0 right-0 bg-green-600/80 text-white p-2 rounded-b-lg text-center text-sm font-medium">
+              Uploaded
+            </div>
+          )}
         </div>
       )}
 
