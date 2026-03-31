@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { CreatePost } from "@/components/create-post";
 import { PostCard } from "@/components/post-card";
+import { StoryBar } from "@/components/story-bar";
 import { PageLoading, CreatePostSkeleton, PostCardSkeletonList } from "@/components/loading";
 
 export default function HomePage() {
@@ -36,15 +37,18 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto py-8 px-4 space-y-4">
-      <CreatePost />
-      {posts === undefined ? (
-        <PostCardSkeletonList count={3} />
-      ) : (
-        posts.map((post) => (
-          <PostCard key={post._id} post={post} />
-        ))
-      )}
+    <div className="max-w-xl mx-auto pb-8">
+      <StoryBar />
+      <div className="px-4 py-4 space-y-4">
+        <CreatePost />
+        {posts === undefined ? (
+          <PostCardSkeletonList count={3} />
+        ) : (
+          posts.map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))
+        )}
+      </div>
     </div>
   );
 }

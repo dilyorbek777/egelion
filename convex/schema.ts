@@ -61,4 +61,51 @@ export default defineSchema({
     .index("by_follower", ["followerId"])
     .index("by_following", ["followingId"])
     .index("by_follower_following", ["followerId", "followingId"]),
+
+  deletedUsers: defineTable({
+    clerkId: v.string(),
+    username: v.string(),
+    fullName: v.string(),
+    profileImage: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    location: v.optional(v.string()),
+    website: v.optional(v.string()),
+    isProfileComplete: v.boolean(),
+    originalId: v.id("users"),
+    deletedAt: v.number(),
+  })
+    .index("by_clerk_id", ["clerkId"])
+    .index("by_username", ["username"]),
+
+  stories: defineTable({
+    authorId: v.id("users"),
+    mediaUrl: v.string(),
+    mediaType: v.union(v.literal("image"), v.literal("video")),
+    caption: v.optional(v.string()),
+    privacy: v.union(v.literal("everyone"), v.literal("followers")),
+    status: v.union(v.literal("active"), v.literal("archived")),
+    expiresAt: v.number(),
+    viewsCount: v.number(),
+    likesCount: v.optional(v.number()),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_status_author", ["status", "authorId"])
+    .index("by_expiresAt", ["expiresAt"]),
+
+  storyViews: defineTable({
+    storyId: v.id("stories"),
+    userId: v.id("users"),
+    viewedAt: v.number(),
+  })
+    .index("by_story", ["storyId"])
+    .index("by_user_story", ["userId", "storyId"]),
+
+  storyLikes: defineTable({
+    storyId: v.id("stories"),
+    userId: v.id("users"),
+    likedAt: v.number(),
+  })
+    .index("by_story", ["storyId"])
+    .index("by_user_story", ["userId", "storyId"])
+    .index("by_story_user", ["storyId", "userId"]),
 });
