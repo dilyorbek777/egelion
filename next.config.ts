@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Add this to handle UploadThing properly
+  experimental: {
+    serverComponentsExternalPackages: ["uploadthing"],
+  },
 };
 
 export default nextConfig;
