@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "@/components/header";
+import { BottomNav } from "@/components/bottom-nav";
 import ProfileGuard from "@/components/ProfileGuard";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -31,7 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ConvexClientProvider>
               <ProfileGuard>
                 <Header />
-                <main>{children}</main>
+                <main className="min-h-screen">{children}</main>
+                <BottomNav />
                 <Toaster />
               </ProfileGuard>
             </ConvexClientProvider>
