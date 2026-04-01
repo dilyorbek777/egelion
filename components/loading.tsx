@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, RotateCw } from "lucide-react";
 
 interface LoadingProps {
   className?: string;
@@ -149,7 +149,16 @@ export function HeaderSkeleton() {
 export function PageLoading({ text = "Loading..." }: { text?: string }) {
   return (
     <div className="min-h-[50vh] flex items-center justify-center">
-      <LoadingSpinner size="lg" text={text} />
+      <div className="flex flex-col items-center gap-4">
+        <LoadingSpinner size="lg" text={text} />
+        <button
+          onClick={() => window.location.reload()}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+        >
+          <RotateCw className="w-4 h-4" />
+          Reload
+        </button>
+      </div>
     </div>
   );
 }

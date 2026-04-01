@@ -104,14 +104,15 @@ export default function SettingsPage() {
 
             <Separator className="my-4" />
             
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 h-auto py-3 px-0"
-              onClick={() => setShowDeleteDialog(true)}
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete Account</span>
-            </Button>
+            <SignOutButton>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 h-auto py-3 px-0"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </Button>
+            </SignOutButton>
           </CardContent>
         </Card>
 
@@ -197,15 +198,14 @@ export default function SettingsPage() {
 
         <Card className="border-destructive/50">
           <CardContent className="pt-6">
-            <SignOutButton>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 h-auto py-3 px-0"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </Button>
-            </SignOutButton>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 h-auto py-3 px-0"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Account</span>
+            </Button>
           </CardContent>
         </Card>
       </div>

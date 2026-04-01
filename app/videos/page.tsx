@@ -198,6 +198,36 @@ function VideoItem({
     }
   };
 
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${post._id}`;
+    const shareData = {
+      title: `Video by @${post.author?.username}`,
+      text: post.content || `Check out this video by @${post.author?.username} on Egelion!`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        // Could add a toast notification here
+        alert("Link copied to clipboard!");
+      }
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") {
+        console.error("Error sharing:", error);
+        // Fallback: try clipboard
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("Link copied to clipboard!");
+        } catch {
+          console.error("Failed to copy to clipboard");
+        }
+      }
+    }
+  };
+
   return (
     <div className="relative h-full w-full snap-start snap-always md:flex md:items-center md:justify-center ">
       {/* Video Container - constrained on large screens */}
@@ -331,7 +361,10 @@ function VideoItem({
 
           {/* Share Button */}
           <div className="flex flex-col items-center gap-1">
-            <button className="group rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95">
+            <button
+              onClick={handleShare}
+              className="group rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
+            >
               <Share2 className="h-7 w-7 text-black dark:text-white" />
             </button>
             <span className="text-xs font-semibold text-black dark:text-white drop-shadow-md">Share</span>
