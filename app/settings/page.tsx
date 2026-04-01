@@ -172,32 +172,10 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Security & Privacy</CardTitle>
-            <CardDescription>Manage your security settings</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent hover:underline">
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4" />
-                <span>Privacy Settings</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </Button>
-            <Separator />
-            <Button variant="ghost" className="w-full justify-between h-auto py-3 px-0 hover:bg-transparent hover:underline">
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4" />
-                <span>Change Password</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </Button>
-          </CardContent>
-        </Card>
+        
 
         <Card className="border-destructive/50">
-          <CardContent className="pt-6">
+          <CardContent className="py-3">
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 h-auto py-3 px-0"
