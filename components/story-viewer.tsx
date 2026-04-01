@@ -341,7 +341,7 @@ export function StoryViewer({
         )}
 
         {/* Bottom Actions */}
-        <div className="absolute bottom-20 left-4 right-4 z-10 flex justify-center">
+        <div className="absolute bottom-8 left-4 right-4 z-10 flex justify-center">
           <Button
             variant="ghost"
             size="sm"

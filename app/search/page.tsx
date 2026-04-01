@@ -27,7 +27,7 @@ export default function SearchPage() {
   const textPosts = posts?.filter((p) => !p.mediaUrl) ?? [];
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 pb-24 md:pb-6">
       <h1 className="text-2xl font-bold mb-6">Search</h1>
       <form onSubmit={handleSubmit} className="flex gap-2 mb-8">
         <Input

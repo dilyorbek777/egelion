@@ -4,6 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUploadThing } from "@/lib/uploadthing";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageIcon, VideoIcon, X, Check, PlusCircle } from "lucide-react";
@@ -17,6 +18,7 @@ const MAX_VIDEO_SIZE = 64 * MB;
 
 export function CreatePost() {
   const { user } = useUser();
+  const router = useRouter();
   const createPost = useMutation(api.posts.create);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -103,6 +105,8 @@ export function CreatePost() {
       setMediaType(null);
       setUploadProgress(0);
       setUploadComplete(false);
+      
+      router.push("/");
     } catch (error) {
       console.error("Error creating post:", error);
       // You might want to show an error message to the user here

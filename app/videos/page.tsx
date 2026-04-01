@@ -360,7 +360,7 @@ function VideoItem({
           </div>
 
           {/* Share Button */}
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1 z-20">
             <button
               onClick={handleShare}
               className="group rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
