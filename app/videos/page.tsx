@@ -60,6 +60,7 @@ function VideoItem({
   const [saved, setSaved] = useState(false);
   const [localLikesCount, setLocalLikesCount] = useState(post.likesCount);
   const [localSavesCount, setLocalSavesCount] = useState(post.savesCount);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [showPlayIndicator, setShowPlayIndicator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useUser();
@@ -67,6 +68,11 @@ function VideoItem({
 
   const toggleLikeMutation = useMutation(api.interactions.toggleLike);
   const toggleSaveMutation = useMutation(api.interactions.toggleSave);
+  const toggleFollowMutation = useMutation(api.interactions.toggleFollow);
+  const currentUserQuery = useQuery(
+    api.users.getByClerkId,
+    clerkId ? { clerkId } : "skip"
+  );
   const isLikedQuery = useQuery(
     api.interactions.isLiked,
     clerkId && post._id ? { clerkId, postId: post._id } : "skip"
@@ -75,6 +81,15 @@ function VideoItem({
     api.interactions.isSaved,
     clerkId && post._id ? { clerkId, postId: post._id } : "skip"
   );
+  const isFollowingQuery = useQuery(
+    api.interactions.isFollowing,
+    clerkId && post.authorId ? { clerkId, targetUserId: post.authorId } : "skip"
+  );
+  const isOwnVideo = currentUserQuery?._id === post.authorId;
+
+  useEffect(() => {
+    if (isFollowingQuery !== undefined) setIsFollowing(isFollowingQuery);
+  }, [isFollowingQuery]);
 
   useEffect(() => {
     if (isLikedQuery !== undefined) setLiked(isLikedQuery);
@@ -143,6 +158,17 @@ function VideoItem({
       setLocalSavesCount((prev) => (result ? prev + 1 : prev - 1));
     } catch (error) {
       console.error("Error toggling save:", error);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!clerkId || !post.authorId) return;
+
+    try {
+      const result = await toggleFollowMutation({ clerkId, targetUserId: post.authorId });
+      setIsFollowing(result);
+    } catch (error) {
+      console.error("Error toggling follow:", error);
     }
   };
 
@@ -274,7 +300,7 @@ function VideoItem({
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute  mx-auto bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent pointer-events-auto">
+        <div className="absolute mx-auto bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent pointer-events-auto">
           <div className="flex items-center justify-start w-fit gap-3 mb-3">
             <Link href={`/profile/${post.author?.username}`}>
               <Avatar className="h-11 w-11 border-2 border-white/80 shadow-lg transition-transform hover:scale-105">
@@ -296,9 +322,13 @@ function VideoItem({
             <Button
               size="sm"
               variant="secondary"
-              className="ml-auto bg-primary text-white border-0 hover:bg-white/30 backdrop-blur-sm text-xs font-semibold px-4"
+              onClick={handleFollow}
+              className={cn(
+                "ml-auto bg-primary text-white border-0 hover:bg-white/30 backdrop-blur-sm text-xs font-semibold px-4",
+                !post.author?._id || isOwnVideo ? "hidden" : ""
+              )}
             >
-              Follow
+              {isFollowing ? "Following" : "Follow"}
             </Button>
           </div>
 
@@ -364,12 +394,12 @@ function CommentsSheet({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 z-50 transition-opacity"
+        className="fixed inset-0 bg-black/60  transition-opacity z-50"
         onClick={onClose}
       />
 
       {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background rounded-t-2xl max-h-[70vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+      <div className="fixed bottom-20 left-0 right-0 z-50 bg-background rounded-t-2xl max-h-[70vh] flex flex-col animate-in slide-in-from-bottom duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">Comments</h3>
@@ -537,7 +567,7 @@ export default function VideosPage() {
       {/* Mobile: Fullscreen scroll container */}
       <div
         ref={containerRef}
-        className="h-screen w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide md:h-[calc(100vh-4rem)]"
+        className="h-[calc(100vh-0.5rem)] w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
         style={{ scrollBehavior: "smooth" }}
       >
         {videos.map((post, index) => (
