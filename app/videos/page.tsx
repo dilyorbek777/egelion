@@ -175,7 +175,7 @@ function VideoItem({
   return (
     <div className="relative h-full w-full snap-start snap-always md:flex md:items-center md:justify-center ">
       {/* Video Container - constrained on large screens */}
-      <div className="absolute inset-0 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-screen md:mx-auto" onClick={togglePlay}>
+      <div className="absolute top-0 inset-0 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-screen md:mx-auto" onClick={togglePlay}>
         {post.mediaUrl && (
           <video
             ref={videoRef}
@@ -232,7 +232,7 @@ function VideoItem({
       {/* Overlay Content */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Right Side Actions */}
-        <div className="absolute right-3 bottom-24 flex flex-col items-center gap-5 pointer-events-auto">
+        <div className="absolute right-3 bottom-24 md:bottom-8 flex flex-col items-center gap-5 pointer-events-auto">
           {/* Like Button */}
           <div className="flex flex-col items-center gap-1">
             <button
@@ -300,7 +300,7 @@ function VideoItem({
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute mx-auto bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent pointer-events-auto">
+        <div className="absolute mx-auto bottom-20 md:bottom-4 left-0 right-0 p-4 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent pointer-events-auto">
           <div className="flex items-center justify-start w-fit gap-3 mb-3">
             <Link href={`/profile/${post.author?.username}`}>
               <Avatar className="h-11 w-11 border-2 border-white/80 shadow-lg transition-transform hover:scale-105">
@@ -399,7 +399,7 @@ function CommentsSheet({
       />
 
       {/* Sheet */}
-      <div className="fixed bottom-20 left-0 right-0 z-50 bg-background rounded-t-2xl max-h-[70vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+      <div className="fixed bottom-18 md:bottom-0 left-0 right-0 z-50 bg-background rounded-t-2xl max-h-[70vh] flex flex-col animate-in slide-in-from-bottom duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold">Comments</h3>
@@ -567,7 +567,7 @@ export default function VideosPage() {
       {/* Mobile: Fullscreen scroll container */}
       <div
         ref={containerRef}
-        className="h-[calc(100vh-0.5rem)] w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
+        className="h-[calc(100vh-4rem)] md:h-[calc(100vh-0.5rem)] w-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
         style={{ scrollBehavior: "smooth" }}
       >
         {videos.map((post, index) => (
