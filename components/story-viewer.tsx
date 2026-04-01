@@ -251,7 +251,7 @@ export function StoryViewer({
           <Button
             variant="ghost"
             size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/20"
+            className="text-white/80 hover:text-white z-30 hover:bg-white/20"
             onClick={handleLike}
           >
             <Heart
