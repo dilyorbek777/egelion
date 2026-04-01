@@ -79,13 +79,24 @@ export function StoryViewer({
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [showViewers, setShowViewers] = useState(false);
-  const [shouldAdvance, setShouldAdvance] = useState(false);
   const [storyDuration, setStoryDuration] = useState(PHOTO_DURATION);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentGroup = storyGroups[currentGroupIndex];
   const currentStory = currentGroup?.stories[currentStoryIndex];
   const isOwnStory = currentStory?.authorId === user?.id;
+
+  // Use refs to avoid stale closures in callbacks
+  const currentStoryIndexRef = useRef(currentStoryIndex);
+  const currentGroupRef = useRef(currentGroup);
+
+  useEffect(() => {
+    currentStoryIndexRef.current = currentStoryIndex;
+  }, [currentStoryIndex]);
+
+  useEffect(() => {
+    currentGroupRef.current = currentGroup;
+  }, [currentGroup]);
 
   const isLiked = useQuery(
     api.stories.isLiked,
@@ -101,27 +112,28 @@ export function StoryViewer({
     [clerkId, markViewed, currentStory?.hasViewed]
   );
 
-  // Reset state when story changes
+  // Handle story advancement
+  const advanceStory = useCallback(() => {
+    setProgress(0);
+    setStoryDuration(PHOTO_DURATION);
+    
+    const idx = currentStoryIndexRef.current;
+    const group = currentGroupRef.current;
+    
+    if (idx < group.stories.length - 1) {
+      setCurrentStoryIndex(idx + 1);
+    } else {
+      onNext();
+    }
+  }, [onNext]);
+
+  // Reset state when story group changes
   useEffect(() => {
     setCurrentStoryIndex(0);
     setProgress(0);
     setShowViewers(false);
     setStoryDuration(PHOTO_DURATION);
   }, [currentGroupIndex]);
-
-  // Handle story advancement when progress completes
-  useEffect(() => {
-    if (!shouldAdvance) return;
-    setShouldAdvance(false);
-    setProgress(0);
-    setStoryDuration(PHOTO_DURATION);
-    
-    if (currentStoryIndex < currentGroup.stories.length - 1) {
-      setCurrentStoryIndex((prev) => prev + 1);
-    } else {
-      onNext();
-    }
-  }, [shouldAdvance, currentStoryIndex, currentGroup, onNext]);
 
   // Handle story progression
   useEffect(() => {
@@ -133,7 +145,7 @@ export function StoryViewer({
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
-          setShouldAdvance(true);
+          advanceStory();
           return 0;
         }
         return prev + 100 / (storyDuration / 100);
@@ -143,13 +155,11 @@ export function StoryViewer({
     return () => clearInterval(interval);
   }, [
     currentStory,
-    currentStoryIndex,
-    currentGroup,
     isPaused,
     showViewers,
-    onNext,
     handleMarkViewed,
     storyDuration,
+    advanceStory,
   ]);
 
   const handleTouchStart = () => setIsPaused(true);
@@ -304,11 +314,10 @@ export function StoryViewer({
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Navigation Areas */}
-        <div className="absolute inset-0 flex z-0">
-          <div className="w-1/3" onClick={handleClickLeft} />
-          <div className="w-1/3" />
-          <div className="w-1/3" onClick={handleClickRight} />
+        {/* Navigation Areas - Left/Right tap zones for mobile */}
+        <div className="absolute inset-0 flex z-10">
+          <div className="w-1/2 h-full" onClick={handleClickLeft} />
+          <div className="w-1/2 h-full" onClick={handleClickRight} />
         </div>
 
         {/* Media */}
@@ -325,7 +334,7 @@ export function StoryViewer({
               const duration = Math.min(video.duration * 1000, MAX_VIDEO_DURATION);
               setStoryDuration(duration);
             }}
-            onEnded={() => setShouldAdvance(true)}
+            onEnded={advanceStory}
           />
         ) : (
           <img

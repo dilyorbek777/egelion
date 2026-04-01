@@ -113,7 +113,7 @@ export function StoryBar() {
                 className={cn(
                   "rounded-full p-[3px]",
                   group.hasUnviewed
-                    ? "bg-gradient-to-tr from-yellow-400 via-orange-500 to-pink-500"
+                    ? "bg-gradient-to-tr from-teal-400 via-cyan-500 to-blue-500"
                     : "bg-muted"
                 )}
               >
