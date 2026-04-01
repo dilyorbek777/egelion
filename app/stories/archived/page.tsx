@@ -58,7 +58,7 @@ export default function ArchivedStoriesPage() {
       <div className="max-w-2xl mx-auto py-8 px-4">
         <div className="flex items-center gap-2 mb-6">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/">
+            <Link href="/stories">
               <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>
@@ -90,7 +90,7 @@ export default function ArchivedStoriesPage() {
     <div className="max-w-2xl mx-auto py-8 px-4">
       <div className="flex items-center gap-2 mb-6">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/">
+          <Link href="/stories">
             <ArrowLeft className="w-5 h-5" />
           </Link>
         </Button>

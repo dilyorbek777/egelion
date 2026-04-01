@@ -12,12 +12,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useUploadThing } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { VideoPlayer } from "./video-player";
 
 interface PostCardProps {
   post: {
@@ -82,6 +83,8 @@ export function PostCard({ post }: PostCardProps) {
   const [optimisticSaves, setOptimisticSaves] = useState<number | null>(null);
   const [optimisticSaved, setOptimisticSaved] = useState<boolean | null>(null);
 
+  const [showLikeAnimation, setShowLikeAnimation] = useState(false);
+
   const handleLike = async () => {
     if (!clerkId) return;
 
@@ -127,8 +130,23 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   const [optimisticComments, setOptimisticComments] = useState<any[]>([]);
-  const [mediaOpen, setMediaOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const router = useRouter();
+
+  const handlePostClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (
+      target.closest("button") ||
+      target.closest("a") ||
+      target.closest("input") ||
+      target.closest("textarea")
+    ) {
+      return;
+    }
+    router.push(`/post/${post._id}`);
+  };
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true);
@@ -196,6 +214,15 @@ export function PostCard({ post }: PostCardProps) {
     setEditMediaType(file.type.startsWith("video") ? "video" : "image");
   };
 
+  const handleDoubleClick = () => {
+    const currentlyLiked = optimisticLiked ?? isLiked ?? false;
+    if (currentlyLiked) return;
+
+    setShowLikeAnimation(true);
+    setTimeout(() => setShowLikeAnimation(false), 800);
+    handleLike();
+  };
+
   const handleRemoveEditMedia = () => {
     setEditMediaFile(null);
     setEditMediaPreview(null);
@@ -204,7 +231,17 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <div className="border rounded-xl p-4 space-y-3 bg-background">
+    <div
+      className="border rounded-xl p-4 space-y-3 bg-background relative overflow-hidden cursor-pointer hover:bg-muted/50 transition-colors"
+      onDoubleClick={handleDoubleClick}
+      onClick={handlePostClick}
+    >
+      {/* Double-tap like animation */}
+      {showLikeAnimation && (
+        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <Heart className="w-32 h-32 text-red-500 fill-red-500 animate-ping" />
+        </div>
+      )}
       {/* Author */}
       <div className="flex items-center justify-between">
         <Link href={`/profile/${post.author?.username}`} className="flex items-center gap-2">
@@ -251,52 +288,21 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Media */}
       {post.mediaUrl && (
-        <Dialog open={mediaOpen} onOpenChange={setMediaOpen}>
-          <DialogTrigger asChild>
-            <div className="cursor-pointer">
-              {post.mediaType === "video" ? (
-                <video
-                  src={post.mediaUrl}
-                  className="w-full rounded-lg max-h-96 object-cover"
-                />
-              ) : (
-                <img
-                  src={post.mediaUrl}
-                  alt=""
-                  className="w-full rounded-lg object-cover max-h-96"
-                />
-              )}
-            </div>
-          </DialogTrigger>
-
-          {/* Changed max-w to [600px] and added w-full */}
-          <DialogContent className="sm:max-w-[600px] w-full p-0 overflow-hidden bg-transparent border-0 shadow-none">
-            <DialogHeader className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-              <DialogTitle className="text-white text-lg font-medium">
-                {post.content}
-              </DialogTitle>
-            </DialogHeader>
-
-            {post.mediaType === "video" ? (
-              <video
-                src={post.mediaUrl}
-                controls
-                className="w-full h-auto max-h-[90vh] rounded-lg"
-                autoPlay
-              />
-            ) : (
-              <img
-                src={post.mediaUrl}
-                alt=""
-                className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+        <div className="cursor-default" onClick={(e) => e.stopPropagation()}>
+          {post.mediaType === "video" ? (
+            <VideoPlayer src={post.mediaUrl} postId={post._id} />
+          ) : (
+            <img
+              src={post.mediaUrl}
+              alt=""
+              className="w-full rounded-lg object-cover max-h-96"
+            />
+          )}
+        </div>
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4 pt-1">
+      <div className="flex items-center gap-4 pt-1" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={handleLike}
           className={cn(
@@ -338,7 +344,7 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Comments */}
       {showComments && (
-        <div className="space-y-3 pt-2 border-t">
+        <div className="space-y-3 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
           {[...(optimisticComments || []), ...(comments || [])]
             .sort((a, b) => (a._creationTime || 0) - (b._creationTime || 0))
             .map((c) => (
@@ -363,7 +369,7 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Delete Post</DialogTitle>
           </DialogHeader>
@@ -383,7 +389,7 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Edit Post Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px]" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Edit Post</DialogTitle>
           </DialogHeader>

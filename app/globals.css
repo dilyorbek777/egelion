@@ -135,3 +135,17 @@
 .cl-internal-l2l775 {
   display: none;
 }
+
+/* Scrollbar hide utility for videos page */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollH::-webkit-scrollbar {
+  display: none;
+}

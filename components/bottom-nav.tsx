@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Home, Search, Plus, User, Settings } from "lucide-react";
+import { Home, Search, Plus, User, Settings, Clapperboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
+  { href: "/videos", icon: Clapperboard, label: "Videos" },
   { href: "/search", icon: Search, label: "Search" },
   { href: "/create-post", icon: Plus, label: "Create" },
   { href: "/settings", icon: Settings, label: "Settings" },

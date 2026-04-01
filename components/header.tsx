@@ -150,6 +150,21 @@ export function Header() {
               </>
             )}
             
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="gap-2"
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="dark:hidden">Light</span>
+                <span className="hidden dark:inline">Dark</span>
+              </Button>
+            </div>
+
             <div className="flex items-center justify-between pt-2 border-t">
               <span className="text-sm text-muted-foreground">Notifications</span>
               <Notifications />

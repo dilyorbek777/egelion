@@ -133,3 +133,21 @@ export const search = query({
     );
   },
 });
+
+export const getVideos = query({
+  args: {},
+  handler: async (ctx) => {
+    const posts = await ctx.db
+      .query("posts")
+      .filter((q) => q.eq(q.field("mediaType"), "video"))
+      .order("desc")
+      .take(50);
+    
+    return Promise.all(
+      posts.map(async (post) => {
+        const author = await ctx.db.get(post.authorId);
+        return { ...post, author };
+      })
+    );
+  },
+});

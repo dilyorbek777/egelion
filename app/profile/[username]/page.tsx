@@ -15,6 +15,7 @@ import {
   UserPlus, UserCheck, Bookmark,
 } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
+import Link from "next/link";
 
 export default function ProfilePage({
   params,
@@ -139,12 +140,12 @@ export default function ProfilePage({
 
   const handleSaveProfile = async () => {
     if (!user?.id) return;
-    
+
     // Validate username before saving
     if (editUsername !== profileUser.username && !validateUsername(editUsername)) {
       return;
     }
-    
+
     try {
       const updated = await updateProfile({
         clerkId: user.id,
@@ -156,7 +157,7 @@ export default function ProfilePage({
       });
       setIsEditingProfile(false);
       setUsernameError(null);
-      
+
       // Redirect to new username URL if username changed
       if (updated?.username && updated.username !== username) {
         window.location.href = `/profile/${updated.username}`;
@@ -269,7 +270,11 @@ export default function ProfilePage({
                       <Button variant="outline" size="sm" onClick={handleEditProfile}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit profile
                       </Button>
-                      
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link href="/settings">
+                          <Settings className="w-4 h-4" />
+                        </Link>
+                      </Button>
                     </>
                   )}
                 </div>
