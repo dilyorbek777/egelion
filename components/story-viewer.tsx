@@ -247,19 +247,6 @@ export function StoryViewer({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Like Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/80 hover:text-white z-30 hover:bg-white/20"
-            onClick={handleLike}
-          >
-            <Heart
-              className={`w-5 h-5 mr-1 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
-            />
-            {currentStory.likesCount ?? 0}
-          </Button>
-
           {isOwnStory && (
             <Button
               variant="ghost"
@@ -352,6 +339,24 @@ export function StoryViewer({
             </p>
           </div>
         )}
+
+        {/* Bottom Actions */}
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white/80 hover:text-white hover:bg-white/20 bg-black/30 backdrop-blur-sm rounded-full px-4"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLike();
+            }}
+          >
+            <Heart
+              className={`w-5 h-5 mr-2 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
+            />
+            <span className="text-white font-medium">{currentStory.likesCount ?? 0}</span>
+          </Button>
+        </div>
 
         {/* Navigation Arrows (Desktop) */}
         <button
