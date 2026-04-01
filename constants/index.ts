@@ -1,4 +1,10 @@
 import { dark } from '@clerk/themes';
+
+export const UPLOAD_LIMITS = {
+  image: "8MB",
+  video: "64MB",
+};
+
 export const CLERK_APPEARANCE = {
   baseTheme: dark,
   variables: {

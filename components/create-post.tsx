@@ -6,7 +6,14 @@ import { useUploadThing } from "@/lib/uploadthing";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, VideoIcon, X, Check } from "lucide-react";
+import { ImageIcon, VideoIcon, X, Check, PlusCircle } from "lucide-react";
+import { UPLOAD_LIMITS } from "@/constants";
+import { CreateStory } from "./create-story";
+
+// Convert MB to bytes for validation
+const MB = 1024 * 1024;
+const MAX_IMAGE_SIZE = 8 * MB;
+const MAX_VIDEO_SIZE = 64 * MB;
 
 export function CreatePost() {
   const { user } = useUser();
@@ -34,16 +41,28 @@ export function CreatePost() {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size
+    const isVideo = file.type.startsWith("video");
+    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const limitLabel = isVideo ? UPLOAD_LIMITS.video : UPLOAD_LIMITS.image;
+
+    if (file.size > maxSize) {
+      setUploadError(`File too large. Maximum size for ${isVideo ? "videos" : "images"} is ${limitLabel}.`);
+      return;
+    }
+
     setUploadError(null);
     setUploadProgress(0);
     setUploadComplete(false);
     setMediaFile(file);
     setMediaPreview(URL.createObjectURL(file));
-    setMediaType(file.type.startsWith("video") ? "video" : "image");
+    setMediaType(isVideo ? "video" : "image");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,25 +163,38 @@ export function CreatePost() {
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          <label htmlFor="post-image" className={`cursor-pointer transition-colors relative ${mediaType === "image" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-            <ImageIcon className="w-5 h-5" />
-            {mediaType === "image" && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                <Check className="w-2.5 h-2.5" />
-              </span>
-            )}
-            <input id="post-image" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-          </label>
-          <label htmlFor="post-video" className={`cursor-pointer transition-colors relative ${mediaType === "video" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
-            <VideoIcon className="w-5 h-5" />
-            {mediaType === "video" && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                <Check className="w-2.5 h-2.5" />
-              </span>
-            )}
-            <input id="post-video" type="file" accept="video/*" className="hidden" onChange={handleFileChange} />
-          </label>
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-2">
+            <label htmlFor="post-image" className={`cursor-pointer transition-colors relative ${mediaType === "image" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              <ImageIcon className="w-5 h-5" />
+              {mediaType === "image" && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                  <Check className="w-2.5 h-2.5" />
+                </span>
+              )}
+              <input id="post-image" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            </label>
+            <label htmlFor="post-video" className={`cursor-pointer transition-colors relative ${mediaType === "video" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              <VideoIcon className="w-5 h-5" />
+              {mediaType === "video" && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                  <Check className="w-2.5 h-2.5" />
+                </span>
+              )}
+              <input id="post-video" type="file" accept="video/*" className="hidden" onChange={handleFileChange} />
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsStoryModalOpen(true)}
+              className="cursor-pointer transition-colors text-muted-foreground hover:text-primary"
+              title="Add to story"
+            >
+              <PlusCircle className="w-5 h-5" />
+            </button>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            Max: {UPLOAD_LIMITS.image} image, {UPLOAD_LIMITS.video} video
+          </span>
         </div>
         <Button
           type="submit"
@@ -172,6 +204,9 @@ export function CreatePost() {
           {loading || isUploading ? "Posting..." : "Post"}
         </Button>
       </div>
+
+      {/* Story Modal */}
+      <CreateStory isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} />
     </form>
   );
 }

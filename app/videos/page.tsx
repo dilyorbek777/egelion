@@ -63,6 +63,9 @@ function VideoItem({
   const [isFollowing, setIsFollowing] = useState(false);
   const [showPlayIndicator, setShowPlayIndicator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
+  const [heartPosition, setHeartPosition] = useState({ x: 0, y: 0 });
+  const lastTapRef = useRef<number>(0);
   const { user } = useUser();
   const clerkId = user?.id ?? "";
 
@@ -128,6 +131,29 @@ function VideoItem({
     setTimeout(() => setShowPlayIndicator(false), 800);
   };
 
+  const handleVideoClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      setHeartPosition({ x, y });
+      setShowDoubleTapHeart(true);
+      setTimeout(() => setShowDoubleTapHeart(false), 800);
+      
+      if (!liked) {
+        handleLike();
+      }
+    } else {
+      // Single tap - toggle play
+      togglePlay();
+    }
+    lastTapRef.current = now;
+  };
+
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     const video = videoRef.current;
@@ -175,7 +201,7 @@ function VideoItem({
   return (
     <div className="relative h-full w-full snap-start snap-always md:flex md:items-center md:justify-center ">
       {/* Video Container - constrained on large screens */}
-      <div className="absolute top-0 inset-0 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-screen md:mx-auto" onClick={togglePlay}>
+      <div className="absolute top-0 inset-0 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-screen md:mx-auto" onClick={handleVideoClick}>
         {post.mediaUrl && (
           <video
             ref={videoRef}
@@ -227,6 +253,19 @@ function VideoItem({
             <Volume2 className="h-5 w-5" />
           )}
         </button>
+
+        {/* Double-tap Heart Animation */}
+        {showDoubleTapHeart && (
+          <div
+            className="absolute z-40 pointer-events-none animate-ping"
+            style={{
+              left: heartPosition.x - 50,
+              top: heartPosition.y - 50,
+            }}
+          >
+            <Heart className="h-24 w-24 fill-red-500 text-red-500 animate-pulse" />
+          </div>
+        )}
       </div>
 
       {/* Overlay Content */}
