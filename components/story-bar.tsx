@@ -79,52 +79,64 @@ export function StoryBar() {
 
   return (
     <>
-      <div className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="flex gap-4 overflow-x-auto py-4 px-4 scrollbar-hide">
+      <div className="bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="flex items-center gap-1 overflow-x-auto py-3 px-2 scrollbar-hide">
           {/* Add Story Button */}
           <button
             onClick={() => setIsCreating(true)}
-            className="flex flex-col items-center gap-1.5 min-w-[72px] flex-shrink-0"
+            className="flex flex-col items-center gap-1.5 min-w-[76px] flex-shrink-0 group"
           >
             <div className="relative">
-              <Avatar className="w-[60px] h-[60px] ring-2 ring-muted ring-offset-2 ring-offset-background">
-                <AvatarImage src={dbUser?.profileImage} />
-                <AvatarFallback>
-                  {dbUser?.fullName?.[0]?.toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-1">
-                <Plus className="w-3 h-3" />
+              <div className="w-[64px] h-[64px] rounded-full p-[2px] bg-gradient-to-br from-muted to-muted group-hover:from-primary/20 group-hover:to-primary/40 transition-all duration-300">
+                <Avatar className="w-full h-full ring-2 ring-background">
+                  <AvatarImage src={dbUser?.profileImage} className="object-cover" />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                    {dbUser?.fullName?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center shadow-lg ring-2 ring-background">
+                <Plus className="w-3 h-3" strokeWidth={2.5} />
               </div>
             </div>
-            <span className="text-xs font-medium truncate max-w-[72px]">
+            <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate max-w-[72px]">
               Your Story
             </span>
           </button>
+
+          {/* Divider */}
+          {storyGroups && storyGroups.length > 0 && (
+            <div className="w-px h-12 bg-border mx-2 flex-shrink-0" />
+          )}
 
           {/* Story Groups */}
           {storyGroups?.map((group: StoryGroup, index: number) => (
             <button
               key={group.author?._id || index}
               onClick={() => handleStoryClick(index)}
-              className="flex flex-col items-center gap-1.5 min-w-[72px] flex-shrink-0"
+              className="flex flex-col items-center gap-1.5 min-w-[76px] flex-shrink-0 group"
             >
               <div
                 className={cn(
-                  "rounded-full p-[3px]",
+                  "w-[64px] h-[64px] rounded-full p-[3px] transition-all duration-300",
                   group.hasUnviewed
-                    ? "bg-gradient-to-tr from-teal-400 via-cyan-500 to-blue-500"
-                    : "bg-muted"
+                    ? "bg-linear-to-tr from-primary via-cyan-500 to-purple-600 group-hover:from-primary group-hover:via-cyan-400 group-hover:to-purple-500"
+                    : "bg-linear-to-br from-muted to-muted/60 group-hover:from-muted-foreground/30 group-hover:to-muted-foreground/50"
                 )}
               >
-                <Avatar className="w-[54px] h-[54px] ring-2 ring-background">
-                  <AvatarImage src={group.author?.profileImage} />
-                  <AvatarFallback>
+                <Avatar className="w-full h-full ring-2 ring-background transition-transform duration-300 group-hover:scale-[0.96]">
+                  <AvatarImage src={group.author?.profileImage} className="object-cover" />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
                     {group.author?.fullName?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <span className="text-xs font-medium truncate max-w-[72px]">
+              <span className={cn(
+                "text-[11px] font-medium truncate max-w-[72px] transition-colors",
+                group.hasUnviewed 
+                  ? "text-foreground" 
+                  : "text-muted-foreground group-hover:text-foreground"
+              )}>
                 {group.author?.username}
               </span>
             </button>
