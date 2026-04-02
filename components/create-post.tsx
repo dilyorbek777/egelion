@@ -93,7 +93,7 @@ export function CreatePost() {
           throw new Error("Upload failed - no response from server");
         }
         
-        mediaUrl = res[0]?.url;
+        mediaUrl = res[0]?.ufsUrl;
         if (!mediaUrl) {
           throw new Error("Upload failed - no URL in response");
         }
@@ -102,7 +102,7 @@ export function CreatePost() {
       }
 
       await createPost({
-        clerkId: user._id,
+        clerkId: user.clerkId,
         content: content.trim() || undefined,
         mediaUrl,
         mediaType: mediaType ?? undefined,

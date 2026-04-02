@@ -106,7 +106,7 @@ export default function ProfileCompletePage() {
       let profileImage: string | undefined;
       if (imageFile) {
         const res = await startUpload([imageFile]);
-        profileImage = res?.[0]?.url;
+        profileImage = res?.[0]?.ufsUrl;
       }
 
       await completeProfile({

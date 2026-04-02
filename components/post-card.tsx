@@ -218,7 +218,7 @@ export function PostCard({ post }: PostCardProps) {
       if (editMediaFile) {
         const res = await startUpload([editMediaFile]);
         if (!res || res.length === 0) throw new Error("Upload failed");
-        mediaUrl = res[0]?.url;
+        mediaUrl = res[0]?.ufsUrl;
         if (!mediaUrl) throw new Error("Upload failed - no URL");
       }
       await updatePost({ postId: post._id, clerkId, content: editContent, mediaUrl: mediaUrl ?? undefined, mediaType: mediaType ?? undefined });

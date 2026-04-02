@@ -104,7 +104,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
       if (!res || res.length === 0) {
         throw new Error("Upload failed");
       }
-      const mediaUrl = res[0]?.url;
+      const mediaUrl = res[0]?.ufsUrl;
       if (!mediaUrl) {
         throw new Error("Upload failed");
       }
