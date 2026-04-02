@@ -3,7 +3,6 @@
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { StoryViewer } from "@/components/story-viewer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,9 +22,9 @@ export default function StoryUserModal({ params }: StoryUserModalProps) {
   }, [params]);
 
   const stories = useQuery(
-    api.stories.getStoriesByUser,
+    api.stories.getStoriesByUsername,
     clerkId && userId
-      ? { clerkId, targetUserId: userId as Id<"users"> }
+      ? { clerkId, username: userId }
       : "skip"
   );
 
