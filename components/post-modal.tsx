@@ -15,6 +15,7 @@ interface PostModalProps {
     likesCount: number;
     commentsCount: number;
     savesCount: number;
+    authorId: Id<"users">;
     author?: { username: string; profileImage?: string; fullName: string } | null;
   };
 }
@@ -34,7 +35,7 @@ export function PostModal({ post }: PostModalProps) {
         <DialogHeader>
           <DialogTitle>Post</DialogTitle>
         </DialogHeader>
-        <PostCard post={post} />
+        <PostCard post={post}  />
       </DialogContent>
     </Dialog>
   );
