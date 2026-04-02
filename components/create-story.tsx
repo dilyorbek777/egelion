@@ -13,14 +13,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { X, ImageIcon, VideoIcon, Globe, Users, Check } from "lucide-react";
+import { X, ImageIcon, Film, Globe, Users, Loader2, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 interface CreateStoryProps {
   isOpen: boolean;
@@ -41,7 +41,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
       setUploadComplete(true);
     },
     onUploadError: (err) => {
-      setUploadError(err.message || "Upload failed - server error");
+      setUploadError(err.message || "Upload failed");
       console.error("Upload error:", err);
     },
     onUploadProgress: (progress) => {
@@ -54,11 +54,11 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
-  const [privacy, setPrivacy] = useState<"everyone" | "followers">("everyone");
+  const [privacy, setPrivacy] = useState<"everyone" | "followers">("followers");
   const [loading, setLoading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (file: File | null) => {
     if (!file) return;
     setUploadError(null);
     setUploadProgress(0);
@@ -68,6 +68,31 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
     setMediaType(file.type.startsWith("video") ? "video" : "image");
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    handleFileChange(file);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) {
+      handleFileChange(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !mediaFile || !mediaType) return;
@@ -75,20 +100,14 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
     setLoading(true);
     setUploadError(null);
     try {
-      console.log("Starting upload for file:", mediaFile.name, mediaFile.type);
       const res = await startUpload([mediaFile]);
-      console.log("Upload response:", res);
-
       if (!res || res.length === 0) {
-        throw new Error("Upload failed - no response from server");
+        throw new Error("Upload failed");
       }
-
       const mediaUrl = res[0]?.url;
       if (!mediaUrl) {
-        throw new Error("Upload failed - no URL in response");
+        throw new Error("Upload failed");
       }
-
-      console.log("Upload successful, URL:", mediaUrl);
 
       await createStory({
         clerkId: user.id,
@@ -98,13 +117,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
         privacy,
       });
 
-      setCaption("");
-      setMediaFile(null);
-      setMediaPreview(null);
-      setMediaType(null);
-      setUploadProgress(0);
-      setUploadComplete(false);
-      setPrivacy("everyone");
+      resetForm();
       onClose();
     } catch (error) {
       console.error("Error creating story:", error);
@@ -113,7 +126,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
     }
   };
 
-  const handleClose = () => {
+  const resetForm = () => {
     setCaption("");
     setMediaFile(null);
     setMediaPreview(null);
@@ -121,176 +134,227 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
     setUploadProgress(0);
     setUploadComplete(false);
     setUploadError(null);
-    setPrivacy("everyone");
+    setPrivacy("followers");
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
+  };
+
+  const removeMedia = () => {
+    setMediaFile(null);
+    setMediaPreview(null);
+    setMediaType(null);
+    setUploadError(null);
+    setUploadProgress(0);
+    setUploadComplete(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create Story</DialogTitle>
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-background border-0 shadow-2xl">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-primary">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <DialogTitle className="text-xl font-semibold">Create Story</DialogTitle>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Privacy Selector */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Who can see your story?</label>
-            <Select
-              value={privacy}
-              onValueChange={(value: "everyone" | "followers") =>
-                setPrivacy(value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="everyone">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    <span>Everyone</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="followers">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>Followers only</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Caption */}
-          <Textarea
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Add a caption (optional)"
-            className="resize-none"
-            rows={2}
-          />
-
-          {/* Error Display */}
-          {uploadError && (
-            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-              {uploadError}
-            </div>
-          )}
-
-          {/* Media Preview */}
-          {mediaPreview && (
-            <div className="relative rounded-lg overflow-hidden">
-              {mediaType === "video" ? (
-                <video
-                  src={mediaPreview}
-                  className="w-full rounded-lg max-h-64"
-                  controls
-                />
-              ) : (
-                <img
-                  src={mediaPreview}
-                  alt=""
-                  className="w-full rounded-lg object-cover max-h-64"
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setMediaFile(null);
-                  setMediaPreview(null);
-                  setMediaType(null);
-                  setUploadError(null);
-                  setUploadProgress(0);
-                  setUploadComplete(false);
-                }}
-                className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black/80"
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-5">
+          {/* Media Upload Area */}
+          <AnimatePresence mode="wait">
+            {!mediaPreview ? (
+              <motion.div
+                key="upload"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={cn(
+                  "relative rounded-2xl border-2 border-dashed transition-all duration-200",
+                  dragActive
+                    ? "border-primary bg-primary/10"
+                    : "border-border hover:border-muted-foreground/50"
+                )}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
               >
-                <X className="w-4 h-4" />
-              </button>
+                <div className="p-8 text-center">
 
-              {/* Upload Progress */}
-              {isUploading && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-white/30 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all duration-200"
-                        style={{ width: `${uploadProgress}%` }}
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Drop your photo or video here
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    or click to browse
+                  </p>
+                  <div className="flex justify-center gap-3">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleInputChange}
+                      />
+                      <span className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-secondary hover:bg-secondary/80 rounded-full transition-colors">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        Photo
+                      </span>
+                    </label>
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={handleInputChange}
+                      />
+                      <span className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-secondary hover:bg-secondary/80 rounded-full transition-colors">
+                        <Film className="w-3.5 h-3.5" />
+                        Video
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="preview"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="relative rounded-2xl overflow-hidden bg-muted"
+              >
+                {mediaType === "video" ? (
+                  <video
+                    src={mediaPreview}
+                    className="w-full aspect-[9/16] max-h-[320px] object-cover"
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={mediaPreview}
+                    alt="Preview"
+                    className="w-full aspect-square max-h-[320px] object-cover"
+                  />
+                )}
+
+                {/* Remove Button */}
+                <button
+                  type="button"
+                  onClick={removeMedia}
+                  className="absolute top-3 right-3 p-2 bg-black/70 hover:bg-black/90 text-white rounded-full backdrop-blur-sm transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                {/* Upload Progress Overlay */}
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
+                    <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-primary"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${uploadProgress}%` }}
                       />
                     </div>
-                    <span className="text-xs font-medium">
+                    <span className="text-sm font-medium text-white">
                       {Math.round(uploadProgress)}%
                     </span>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Upload Complete */}
-              {uploadComplete && !isUploading && (
-                <div className="absolute bottom-0 left-0 right-0 bg-green-600/80 text-white p-2 text-center text-sm font-medium">
-                  Uploaded
-                </div>
-              )}
-            </div>
-          )}
+                {/* Upload Complete Indicator */}
+                {uploadComplete && !isUploading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+                  >
+                    <div className="flex items-center gap-2 text-white text-sm">
+                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="font-medium">Ready to share</span>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* File Selectors */}
-          {!mediaPreview && (
-            <div className="grid grid-cols-2 gap-4">
-              <label
-                htmlFor="story-image"
-                className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors"
+          {/* Error Message */}
+          <AnimatePresence>
+            {uploadError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 p-3"
               >
-                <ImageIcon className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Add Photo</span>
-                <input
-                  id="story-image"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
+                <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+                  <X className="w-4 h-4" />
+                  {uploadError}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              <label
-                htmlFor="story-video"
-                className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors"
+          {/* Caption */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Caption</label>
+            <Textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="What's on your mind?"
+              className="resize-none min-h-[80px] rounded-xl border-muted-foreground/20 focus:border-primary focus:ring-primary/20"
+            />
+          </div>
+
+          {/* Privacy Toggle */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Who can see this?</label>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
+              <button
+                type="button"
+                onClick={() => setPrivacy("everyone")}
+                className={cn(
+                  "flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium rounded-lg transition-all",
+                  privacy === "everyone"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
               >
-                <VideoIcon className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Add Video</span>
-                <input
-                  id="story-video"
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
+                <Globe className="w-4 h-4" />
+                Everyone
+              </button>
+              <button
+                type="button"
+                onClick={() => setPrivacy("followers")}
+                className={cn(
+                  "flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium rounded-lg transition-all",
+                  privacy === "followers"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Users className="w-4 h-4" />
+                Followers
+              </button>
             </div>
-          )}
+          </div>
 
-          {/* Selected Indicator */}
-          {mediaPreview && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              {mediaType === "image" ? (
-                <ImageIcon className="w-4 h-4" />
-              ) : (
-                <VideoIcon className="w-4 h-4" />
-              )}
-              <span>
-                {mediaType === "image" ? "Photo" : "Video"} selected
-              </span>
-              <Check className="w-4 h-4 text-green-500" />
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <div className="flex gap-2">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 rounded-xl h-11"
               onClick={handleClose}
               disabled={loading || isUploading}
             >
@@ -298,10 +362,20 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
             </Button>
             <Button
               type="submit"
-              className="flex-1"
               disabled={loading || isUploading || !mediaFile}
+              className={cn(
+                "flex-1 rounded-xl h-11 font-medium",
+                !mediaFile && "opacity-50 cursor-not-allowed"
+              )}
             >
-              {loading || isUploading ? "Creating..." : "Share Story"}
+              {loading || isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sharing...
+                </>
+              ) : (
+                "Share Story"
+              )}
             </Button>
           </div>
         </form>
