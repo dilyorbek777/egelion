@@ -120,12 +120,32 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/post/${post._id}`;
+    const shareUrl = `${window.location.origin}/post/${post._id}`;
+    const shareData = {
+      title: `Video by @${post.author?.username}`,
+      text: post.content || `Check out this video by @${post.author?.username} on Egelion!`,
+      url: shareUrl,
+    };
+
     try {
-      await navigator.clipboard.writeText(url);
-      alert("Link copied!");
-    } catch {
-      prompt("Copy this link:", url);
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        // Could add a toast notification here
+        alert("Link copied to clipboard!");
+      }
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") {
+        console.error("Error sharing:", error);
+        // Fallback: try clipboard
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("Link copied to clipboard!");
+        } catch {
+          console.error("Failed to copy to clipboard");
+        }
+      }
     }
   };
 
