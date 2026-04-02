@@ -29,6 +29,7 @@ interface PostCardProps {
     likesCount: number;
     commentsCount: number;
     savesCount: number;
+    authorId: Id<"users">;
     author?: { username: string; profileImage?: string; fullName: string } | null;
   };
 }
@@ -49,6 +50,10 @@ export function PostCard({ post }: PostCardProps) {
   const dbUser = useQuery(
     api.users.getByClerkId,
     clerkId ? { clerkId } : "skip"
+  );
+  const hasStories = useQuery(
+    api.stories.hasPublicActiveStories,
+    post.author?.username ? { username: post.author.username } : "skip"
   );
 
   const toggleLike = useMutation(api.interactions.toggleLike);
@@ -264,23 +269,34 @@ export function PostCard({ post }: PostCardProps) {
       )}
       {/* Author */}
       <div className="flex items-center justify-between">
-        <Link href={`/profile/${post.author?.username}`} className="flex items-center gap-2">
-          {post.author?.profileImage ? (
-            <img
-              src={post.author.profileImage}
-              alt={post.author.fullName}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
-              {post.author?.fullName?.[0] ?? "?"}
+        <div className="flex items-center gap-2">
+          {/* Avatar with story ring - links to stories */}
+          <Link href={`/stories/${post.author?.username}`} className="relative shrink-0">
+            <div className={cn(
+              "w-9 h-9 rounded-full p-[2px] transition-all",
+              hasStories
+                ? "bg-linear-to-tr from-primary via-cyan-500 to-purple-600 hover:scale-105"
+                : "bg-transparent"
+            )}>
+              {post.author?.profileImage ? (
+                <img
+                  src={post.author.profileImage}
+                  alt={post.author.fullName}
+                  className="w-full h-full rounded-full object-cover ring-2 ring-background"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-muted flex items-center justify-center text-xs ring-2 ring-background">
+                  {post.author?.fullName?.[0] ?? "?"}
+                </div>
+              )}
             </div>
-          )}
-          <div>
-            <p className="text-sm font-medium">{post.author?.fullName}</p>
+          </Link>
+          {/* Text info - links to profile */}
+          <Link href={`/profile/${post.author?.username}`} className="flex flex-col">
+            <p className="text-sm font-medium hover:underline">{post.author?.fullName}</p>
             <p className="text-xs text-muted-foreground">@{post.author?.username}</p>
-          </div>
-        </Link>
+          </Link>
+        </div>
         {isOwner && (
           <div className="flex gap-1">
             <Button

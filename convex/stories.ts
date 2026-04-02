@@ -99,35 +99,47 @@ export const getActiveStories = query({
     if (!user) return [];
 
     const now = Date.now();
+
+    // Get all users the current user follows
+    const follows = await ctx.db
+      .query("follows")
+      .withIndex("by_follower", (q) => q.eq("followerId", user._id))
+      .collect();
+
+    const followingIds = new Set(follows.map((f) => f.followingId));
+    // Include user's own ID to show their own stories
+    followingIds.add(user._id);
+
+    // Get all active stories from followed users
     const allActiveStories = await ctx.db
       .query("stories")
       .filter((q) => q.eq(q.field("status"), "active"))
       .filter((q) => q.gt(q.field("expiresAt"), now))
       .collect();
 
+    const storiesFromFollowing = allActiveStories.filter((story) =>
+      followingIds.has(story.authorId)
+    );
+
+    // Filter by privacy settings
     const visibleStories: typeof allActiveStories = [];
 
-    for (const story of allActiveStories) {
+    for (const story of storiesFromFollowing) {
+      // User's own stories are always visible
       if (story.authorId === user._id) {
         visibleStories.push(story);
         continue;
       }
 
+      // Stories with "everyone" privacy from followed users
       if (story.privacy === "everyone") {
         visibleStories.push(story);
         continue;
       }
 
+      // Stories with "followers" privacy - user already follows them
       if (story.privacy === "followers") {
-        const isFollowing = await ctx.db
-          .query("follows")
-          .withIndex("by_follower_following", (q) =>
-            q.eq("followerId", user._id).eq("followingId", story.authorId)
-          )
-          .first();
-        if (isFollowing) {
-          visibleStories.push(story);
-        }
+        visibleStories.push(story);
       }
     }
 
@@ -226,6 +238,93 @@ export const getStoriesByUser = query({
         return { ...story, author: targetUser, hasViewed: !!view };
       })
     );
+  },
+});
+
+export const getStoriesByUsername = query({
+  args: { clerkId: v.string(), username: v.string() },
+  handler: async (ctx, { clerkId, username }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+    if (!user) return [];
+
+    const targetUser = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", username))
+      .first();
+    if (!targetUser) return [];
+
+    const now = Date.now();
+    const stories = await ctx.db
+      .query("stories")
+      .withIndex("by_status_author", (q) =>
+        q.eq("status", "active").eq("authorId", targetUser._id)
+      )
+      .filter((q) => q.gt(q.field("expiresAt"), now))
+      .collect();
+
+    const visibleStories: typeof stories = [];
+
+    for (const story of stories) {
+      if (story.authorId === user._id) {
+        visibleStories.push(story);
+        continue;
+      }
+
+      if (story.privacy === "everyone") {
+        visibleStories.push(story);
+        continue;
+      }
+
+      if (story.privacy === "followers") {
+        const isFollowing = await ctx.db
+          .query("follows")
+          .withIndex("by_follower_following", (q) =>
+            q.eq("followerId", user._id).eq("followingId", story.authorId)
+          )
+          .first();
+        if (isFollowing) {
+          visibleStories.push(story);
+        }
+      }
+    }
+
+    return Promise.all(
+      visibleStories.map(async (story) => {
+        const view = await ctx.db
+          .query("storyViews")
+          .withIndex("by_user_story", (q) =>
+            q.eq("userId", user._id).eq("storyId", story._id)
+          )
+          .first();
+        return { ...story, author: targetUser, hasViewed: !!view };
+      })
+    );
+  },
+});
+
+export const hasPublicActiveStories = query({
+  args: { username: v.string() },
+  handler: async (ctx, { username }) => {
+    const targetUser = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", username))
+      .first();
+    if (!targetUser) return false;
+
+    const now = Date.now();
+    const stories = await ctx.db
+      .query("stories")
+      .withIndex("by_status_author", (q) =>
+        q.eq("status", "active").eq("authorId", targetUser._id)
+      )
+      .filter((q) => q.gt(q.field("expiresAt"), now))
+      .collect();
+
+    // Check if any story has privacy "everyone"
+    return stories.some((story) => story.privacy === "everyone");
   },
 });
 

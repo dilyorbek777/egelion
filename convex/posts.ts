@@ -111,7 +111,7 @@ export const getById = query({
     const post = await ctx.db.get(postId);
     if (!post) return null;
     const author = await ctx.db.get(post.authorId);
-    return { ...post, author };
+    return { ...post, author, authorId: post.authorId };
   },
 });
 
@@ -128,7 +128,7 @@ export const search = query({
     return Promise.all(
       filteredPosts.map(async (post) => {
         const author = await ctx.db.get(post.authorId);
-        return { ...post, author };
+        return { ...post, author, authorId: post.authorId };
       })
     );
   },
@@ -146,7 +146,7 @@ export const getVideos = query({
     return Promise.all(
       posts.map(async (post) => {
         const author = await ctx.db.get(post.authorId);
-        return { ...post, author };
+        return { ...post, author, authorId: post.authorId };
       })
     );
   },
