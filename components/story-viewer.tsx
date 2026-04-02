@@ -224,8 +224,8 @@ export function StoryViewer({
                   index < currentStoryIndex
                     ? "100%"
                     : index === currentStoryIndex
-                    ? `${progress}%`
-                    : "0%",
+                      ? `${progress}%`
+                      : "0%",
               }}
             />
           </div>
@@ -360,49 +360,52 @@ export function StoryViewer({
         </div>
 
         {/* Caption */}
-        {currentStory.caption && (
-          <div className="absolute bottom-24 left-4 right-4 z-20">
-            <div className="bg-black/60 backdrop-blur-md rounded-2xl px-4 py-3">
+
+        <div className="absolute bottom-24 left-4 right-4 z-20">
+          <div className="bg-black/60 backdrop-blur-md rounded-2xl px-4 py-3">
+            {currentStory.caption && (
               <p className="text-white text-center text-sm leading-relaxed">
                 {currentStory.caption}
               </p>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Bottom Actions */}
-        <div className="absolute bottom-6 left-4 right-4 z-20">
-          <div className="flex items-center justify-between">
-            {/* Like Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-10 px-4 rounded-full backdrop-blur-md transition-all duration-200",
-                isLiked
-                  ? "bg-red-500/20 hover:bg-red-500/30 text-red-400"
-                  : "bg-white/10 hover:bg-white/20 text-white"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleLike();
-              }}
-            >
-              <Heart
-                className={cn(
-                  "w-5 h-5 mr-2 transition-all duration-200",
-                  isLiked && "fill-red-500 scale-110"
-                )}
-              />
-              <span className="font-medium">{currentStory.likesCount ?? 0}</span>
-            </Button>
+            <div className="">
+              <div className="flex items-center justify-between">
+                {/* Like Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "h-10 px-4 rounded-full backdrop-blur-md transition-all duration-200",
+                    isLiked
+                      ? "bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                      : "bg-white/10 hover:bg-white/20 text-white"
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike();
+                  }}
+                >
+                  <Heart
+                    className={cn(
+                      "w-5 h-5 mr-2 transition-all duration-200",
+                      isLiked && "fill-red-500 scale-110"
+                    )}
+                  />
+                  <span className="font-medium">{currentStory.likesCount ?? 0}</span>
+                </Button>
 
-            {/* Story Counter */}
-            <div className="text-white/60 text-xs font-medium">
-              {currentStoryIndex + 1} / {currentGroup.stories.length}
+                {/* Story Counter */}
+                <div className="text-white/60 text-xs font-medium">
+                  {currentStoryIndex + 1} / {currentGroup.stories.length}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Bottom Actions */}
+
 
         {/* Navigation Arrows (Desktop) */}
         <button
