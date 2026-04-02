@@ -341,7 +341,7 @@ export function StoryViewer({
               src={currentStory.mediaUrl}
               className="w-full h-full object-contain max-h-screen"
               autoPlay
-              muted
+              
               playsInline
               onLoadedMetadata={(e) => {
                 const video = e.currentTarget;

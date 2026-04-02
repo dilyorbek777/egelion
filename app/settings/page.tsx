@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "next-themes";
-import { Sun, Moon, LogOut, Bell, Shield, User, ChevronRight, Pencil, Trash2, Clock, Film } from "lucide-react";
+import { Sun, Moon, LogOut, Bell, Shield, User, ChevronRight, Pencil, Trash2, Clock, Film, Type } from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -20,11 +20,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useFont } from "@/components/font-provider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SettingsPage() {
   const { user } = useUser();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { font, setFont } = useFont();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
