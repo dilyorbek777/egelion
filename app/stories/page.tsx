@@ -110,13 +110,13 @@ export default function StoriesPage() {
     setPreviewOpen(true);
   };
 
-  const getTimeLeft = (expiresAt: number) => {
-    const hoursLeft = Math.max(0, Math.floor((expiresAt - Date.now()) / (1000 * 60 * 60)));
-    if (hoursLeft < 1) {
-      const minutesLeft = Math.max(0, Math.floor((expiresAt - Date.now()) / (1000 * 60)));
-      return `${minutesLeft}m left`;
+  const getTimeAgo = (createdAt: number) => {
+    const hoursAgo = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60));
+    if (hoursAgo < 1) {
+      const minutesAgo = Math.floor((Date.now() - createdAt) / (1000 * 60));
+      return `${minutesAgo}m ago`;
     }
-    return `${hoursLeft}h left`;
+    return `${hoursAgo}h ago`;
   };
 
   return (
@@ -174,7 +174,7 @@ export default function StoriesPage() {
                       <p className="font-medium">{dbUser.username}</p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-3 h-3" />
-                        {getTimeLeft(story.expiresAt)}
+                        {getTimeAgo(story.createdAt)}
                         {story.privacy === "followers" && (
                           <span className="text-xs bg-muted px-2 py-0.5 rounded">
                             Followers only
