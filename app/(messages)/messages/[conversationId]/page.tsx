@@ -314,7 +314,7 @@ export default function ConversationPage() {
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed top-18 w-full z-20 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
+          className="fixed top-0 w-full z-20 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
         >
           <div className="flex items-center justify-between px-4 py-3 max-w-3xl mx-auto">
             <div className="flex items-center gap-3">
@@ -619,7 +619,7 @@ export default function ConversationPage() {
           animate={{ y: 0, opacity: 1 }}
           className="border-t border-border/50 bg-background/80 backdrop-blur-xl p-4"
         >
-          <div className="max-w-3xl mx-auto space-y-3">
+          <div className="max-w-3xl w-full fixed bottom-12 mx-auto space-y-3">
             <AnimatePresence>
               {replyingTo && (
                 <motion.div
