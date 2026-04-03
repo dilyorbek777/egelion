@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Heart, MessageCircle, Bookmark, UserPlus, Bell } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Bookmark, UserPlus, Bell, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 interface Notification {
   _id: string;
   userId: string;
-  type: "like" | "comment" | "save" | "follow";
+  type: "like" | "comment" | "save" | "follow" | "message";
   actorId: string;
   postId?: string;
   read: boolean;
@@ -39,6 +39,7 @@ const notificationIcons = {
   comment: MessageCircle,
   save: Bookmark,
   follow: UserPlus,
+  message: Mail,
 };
 
 const notificationColors = {
@@ -46,9 +47,10 @@ const notificationColors = {
   comment: "text-blue-500",
   save: "text-yellow-500",
   follow: "text-green-500",
+  message: "text-purple-500",
 };
 
-const getNotificationText = (notification: Notification) => {
+const getNotificationText = (notification: Notification): string => {
   const actorName = notification.actor?.username || "Someone";
   switch (notification.type) {
     case "like":
@@ -59,6 +61,8 @@ const getNotificationText = (notification: Notification) => {
       return `${actorName} saved your post`;
     case "follow":
       return `${actorName} started following you`;
+    case "message":
+      return `${actorName} sent you a message`;
     default:
       return "You have a new notification";
   }

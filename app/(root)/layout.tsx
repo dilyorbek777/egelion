@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans, Outfit, Roboto_Slab, JetBrains_Mono, Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FontProvider, FontFamily } from "@/components/font-provider";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
@@ -38,11 +38,8 @@ export default async function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode
 }) {
-  // 1. Read cookie on the server
   const cookieStore = await cookies();
   const fontCookie = cookieStore.get("egelion-font")?.value as FontFamily | undefined;
-
-  // 2. Determine initial font class
   const activeFont = fontCookie && fontClassMap[fontCookie] ? fontCookie : "default";
   const fontClass = fontClassMap[activeFont];
 
@@ -56,7 +53,6 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* 3. Pass initialFont to the provider to sync client state */}
             <FontProvider initialFont={activeFont}>
               <ConvexClientProvider>
                 <ProfileGuard>

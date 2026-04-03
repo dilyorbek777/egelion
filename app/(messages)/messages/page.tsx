@@ -135,7 +135,7 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[70vh] bg-background">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b">
@@ -290,7 +290,7 @@ export default function MessagesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        className="opacity-100 outline-none group-hover:opacity-100 transition-opacity shrink-0"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
