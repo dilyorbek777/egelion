@@ -619,7 +619,7 @@ export default function ConversationPage() {
           animate={{ y: 0, opacity: 1 }}
           className="border-t border-border/50 bg-background/80 backdrop-blur-xl p-4"
         >
-          <div className="max-w-3xl w-full fixed bottom-12 mx-auto space-y-3">
+          <div className="max-w-3xl w-full fixed bottom-18 mx-auto space-y-3">
             <AnimatePresence>
               {replyingTo && (
                 <motion.div
