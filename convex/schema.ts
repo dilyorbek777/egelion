@@ -11,6 +11,7 @@ export default defineSchema({
     location: v.optional(v.string()),
     website: v.optional(v.string()),
     isProfileComplete: v.boolean(),
+    lastSeenAt: v.optional(v.number()),
   })
     .index("by_clerk_id", ["clerkId"])
     .index("by_username", ["username"]),
@@ -47,9 +48,10 @@ export default defineSchema({
 
   notifications: defineTable({
     userId: v.id("users"),
-    type: v.union(v.literal("like"), v.literal("comment"), v.literal("save"), v.literal("follow")),
+    type: v.union(v.literal("like"), v.literal("comment"), v.literal("save"), v.literal("follow"), v.literal("message")),
     actorId: v.id("users"),
     postId: v.optional(v.id("posts")),
+    conversationId: v.optional(v.id("conversations")),
     read: v.boolean(),
   }).index("by_user", ["userId"])
     .index("by_user_unread", ["userId", "read"]),
@@ -108,4 +110,35 @@ export default defineSchema({
     .index("by_story", ["storyId"])
     .index("by_user_story", ["userId", "storyId"])
     .index("by_story_user", ["storyId", "userId"]),
+
+  conversations: defineTable({
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastMessageAt: v.optional(v.number()),
+  }),
+
+  conversationParticipants: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+    joinedAt: v.number(),
+    lastReadAt: v.optional(v.number()),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_user", ["userId"])
+    .index("by_user_conversation", ["userId", "conversationId"]),
+
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.id("users"),
+    content: v.optional(v.string()),
+    mediaUrl: v.optional(v.string()),
+    mediaType: v.optional(v.union(v.literal("image"), v.literal("video"))),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+    isDeleted: v.optional(v.boolean()),
+    replyToId: v.optional(v.id("messages")),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_conversation_created", ["conversationId", "createdAt"])
+    .index("by_sender", ["senderId"]),
 });

@@ -5,7 +5,7 @@ import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Notifications } from "@/components/notifications";
-import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon, Sparkles, Video } from "lucide-react";
+import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon, Sparkles, Video, MessageCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/loading";
@@ -34,8 +34,9 @@ export function Header() {
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
-    { href: "/search", icon: Search, label: "Search" },
+    
     { href: "/videos", icon: Video, label: "Videos" },
+    { href: "/messages", icon: MessageCircle, label: "Messages" },
     ...(dbUser ? [{ href: `/profile/${dbUser.username}`, icon: User, label: "Profile" }] : []),
   ];
 
@@ -105,6 +106,10 @@ export function Header() {
           {/* Right Section */}
           <div className="flex items-center gap-1">
             {/* Theme Toggle */}
+
+            <Link href="/search">
+              <Search className="text-sm h-[18px] w-[18px]  transition-all rotate-0 scale-100" />
+            </Link>
             <Button
               variant="ghost"
               size="icon"

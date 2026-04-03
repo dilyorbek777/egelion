@@ -320,6 +320,7 @@ export const getNotifications = query({
         ...n,
         actor: await ctx.db.get(n.actorId),
         post: n.postId ? await ctx.db.get(n.postId) : null,
+        conversation: n.conversationId ? await ctx.db.get(n.conversationId) : null,
       }))
     );
   },

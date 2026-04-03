@@ -9,6 +9,7 @@
  */
 
 import type * as interactions from "../interactions.js";
+import type * as messages from "../messages.js";
 import type * as posts from "../posts.js";
 import type * as stories from "../stories.js";
 import type * as users from "../users.js";
@@ -21,6 +22,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   interactions: typeof interactions;
+  messages: typeof messages;
   posts: typeof posts;
   stories: typeof stories;
   users: typeof users;

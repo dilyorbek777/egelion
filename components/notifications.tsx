@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState, useEffect, useRef } from "react";
-import { Bell, Heart, MessageCircle, Bookmark, X, UserPlus } from "lucide-react";
+import { Bell, Heart, MessageCircle, Bookmark, X, UserPlus, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {   Skeleton } from "@/components/loading";
 import Link from "next/link";
@@ -44,7 +44,8 @@ export function Notifications() {
               notification.type,
               notification.actor?.fullName,
               notification.actor?.username,
-              notification.post?._id
+              notification.post?._id,
+              notification.conversation?._id
             )}
           </span>
         </div>,
@@ -60,7 +61,7 @@ export function Notifications() {
     await markRead({ clerkId, notificationId });
   };
 
-  const getNotificationIcon = (type: "like" | "comment" | "save" | "follow") => {
+  const getNotificationIcon = (type: "like" | "comment" | "save" | "follow" | "message") => {
     switch (type) {
       case "like":
         return <Heart className="w-4 h-4 text-red-500 fill-current" />;
@@ -70,18 +71,22 @@ export function Notifications() {
         return <Bookmark className="w-4 h-4 text-yellow-500 fill-current" />;
       case "follow":
         return <UserPlus className="w-4 h-4 text-green-500" />;
+      case "message":
+        return <Mail className="w-4 h-4 text-purple-500" />;
     }
   };
 
   const getNotificationText = (
-    type: "like" | "comment" | "save" | "follow",
+    type: "like" | "comment" | "save" | "follow" | "message",
     actorName?: string,
     username?: string,
-    postId?: string
+    postId?: string,
+    conversationId?: string
   ) => {
     if (!actorName) return null;
     const actorLink = <Link href={`/profile/${username || actorName}`} className="hover:underline">@{username || actorName}</Link>;
     const postLink = postId ? <Link href={`/post/${postId}`} className="hover:underline">your post</Link> : "your post";
+    const messageLink = conversationId ? <Link href={`/messages/${conversationId}`} className="hover:underline">your messages</Link> : "your messages";
     switch (type) {
       case "like":
         return <>{actorLink} liked {postLink}</>;
@@ -91,6 +96,8 @@ export function Notifications() {
         return <>{actorLink} saved {postLink}</>;
       case "follow":
         return <>{actorLink} started following you</>;
+      case "message":
+        return <>{actorLink} sent you a {messageLink}</>;
     }
   };
 
@@ -160,7 +167,8 @@ export function Notifications() {
                           notification.type,
                           notification.actor?.fullName,
                           notification.actor?.username,
-                          notification.post?._id
+                          notification.post?._id,
+                          notification.conversation?._id
                         )}
                       </p>
                       <p className="text-xs text-muted-foreground">

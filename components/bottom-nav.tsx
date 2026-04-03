@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Home, Search, Plus, User, Clapperboard } from "lucide-react";
+import { Home,  Plus, User, Clapperboard, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/videos", icon: Clapperboard, label: "Videos" },
   { href: "/create-post", icon: Plus, label: "Create" },
-  { href: "/search", icon: Search, label: "Search" },
+  { href: "/messages", icon: MessageCircle, label: "Messages" },
 ];
 
 export function BottomNav() {

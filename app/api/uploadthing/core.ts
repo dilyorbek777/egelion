@@ -28,6 +28,13 @@ export const ourFileRouter = {
       console.log("Post media upload complete:", file.url, file.type);
       return { url: file.url, type: file.type };
     }),
+
+  messageMedia: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(handleAuth)
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("Message media upload complete:", file.url);
+      return { url: file.url };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
