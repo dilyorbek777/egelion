@@ -275,7 +275,7 @@ function VideoItem({
         {/* Mute Button */}
         <button
           onClick={toggleMute}
-          className="absolute top-8 right-4 z-30 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-md transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
+          className="absolute top-18 right-4 z-30 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-md transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
         >
           {isMuted ? (
             <VolumeX className="h-5 w-5" />
