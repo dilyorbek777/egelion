@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,15 @@ import Link from "next/link";
 export default function SearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const posts = useQuery(api.posts.getFeed, {});
+  const {
+    results: posts,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.posts.getFeed,
+    {},
+    { initialNumItems: 20 }
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +52,7 @@ export default function SearchPage() {
       </form>
 
       {/* Posts Sections */}
-      {posts === undefined ? (
+      {status === "LoadingFirstPage" ? (
         <PostCardSkeletonList count={6} />
       ) : posts.length === 0 ? (
         <p className="text-sm text-muted-foreground">No posts found</p>
