@@ -165,7 +165,7 @@ export default function StoriesPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={dbUser.profileImage} />
+                      <AvatarImage src={dbUser.profileImage ?? undefined} />
                       <AvatarFallback>
                         {dbUser.fullName?.[0]?.toUpperCase()}
                       </AvatarFallback>
