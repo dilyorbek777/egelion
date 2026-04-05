@@ -29,11 +29,14 @@ export const ourFileRouter = {
       return { url: file.url, type: file.type };
     }),
 
-  messageMedia: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+  messageMedia: f({
+    image: { maxFileSize: "8MB", maxFileCount: 1 },
+    video: { maxFileSize: "64MB", maxFileCount: 1 },
+  })
     .middleware(handleAuth)
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Message media upload complete:", file.url);
-      return { url: file.url };
+      console.log("Message media upload complete:", file.url, file.type);
+      return { url: file.url, type: file.type };
     }),
 } satisfies FileRouter;
 

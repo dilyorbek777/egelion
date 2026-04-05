@@ -52,6 +52,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 interface Message {
   _id: string;
@@ -64,6 +71,7 @@ interface Message {
   updatedAt?: number;
   isDeleted?: boolean;
   replyToId?: string;
+  isRead?: boolean;
   sender: {
     _id: string;
     username: string;
@@ -123,6 +131,8 @@ export default function ConversationPage() {
   const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [editContent, setEditContent] = useState("");
 
   const emojis = ["😀", "😂", "🤣", "😊", "😍", "🥰", "😘", "😅", "😆", "😁", "🙂", "🙃", "😉", "😌", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🤭", "🤫", "🤥", "😶", "😐", "😑", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😵", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👹", "👺", "🤡", "💩", "👻", "💀", "☠️", "👽", "👾", "🤖", "🎃", "😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾", "👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤌", "🤏", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "🖕", "👇", "☝️", "👍", "👎", "✊", "👊", "🤛", "🤜", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "✍️", "💪", "🦾", "🦵", "🦿", "🦶", "👣", "👂", "🦻", "👃", "🧠", "🫀", "🫁", "🦷", "🦴", "👀", "👁️", "👅", "👄", "💋", "🩸", "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "☮️", "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐", "⛎", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓", "🆔", "⚛️", "🉑", "☢️", "☣️", "📴", "📳", "🈶", "🈚", "🈸", "🈺", "🈷️", "✴️", "🆚", "💮", "🉐", "㊙️", "㊗️", "🈴", "🈵", "🈹", "🈲", "🅰️", "🅱️", "🆎", "🆑", "🅾️", "🆘", "❌", "⭕", "🛑", "⛔", "📛", "🚫", "💯", "💢", "♨️", "🚷", "🚯", "🚳", "🚱", "🔞", "📵", "🚭", "❗", "❕", "❓", "❔", "‼️", "⁉️", "🔅", "🔆", "〽️", "⚠️", "🚸", "🔱", "⚜️", "🔰", "♻️", "✅", "🈯", "💹", "❇️", "✳️", "❎", "🌐", "💠", "Ⓜ️", "🌀", "💤", "🏧", "🚾", "♿", "🅿️", "🈳", "🈂", "🛂", "🛃", "🛄", "🛅", "🛗", "🚹", "🚺", "🚼", "⚧", "🚻", "🚮", "🎦", "📶", "🈁", "🔣", "ℹ️", "🔤", "🔡", "🔠", "🆖", "🆗", "🆙", "🆒", "🆕", "🆓", "0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "🔢", "#️⃣", "*️⃣", "⏏️", "▶️", "⏸️", "⏯️", "⏹️", "⏺️", "⏭️", "⏮️", "⏩", "⏪", "⏫", "⏬", "◀️", "🔼", "🔽", "➡️", "⬅️", "⬆️", "⬇️", "↗️", "↘️", "↙️", "↖️", "↕️", "↔️", "↪️", "↩️", "⤴️", "⤵️", "🔀", "🔁", "🔂", "🔄", "🔃", "🎵", "🎶", "➕", "➖", "➗", "✖️", "💲", "💱", "™️", "©️", "®️", "〰️", "➰", "➿", "🔚", "🔙", "🔛", "🔝", "🔜", "✔️", "☑️", "🔘", "🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪", "🟤", "🔺", "🔻", "🔸", "🔹", "🔶", "🔷", "🔳", "🔲", "▪️", "▫️", "◾", "◽", "◼️", "◻️", "🟥", "🟧", "🟨", "🟩", "🟦", "🟪", "⬛", "⬜", "🟫", "🔈", "🔇", "🔉", "🔊", "🔔", "🔕", "📣", "📢", "💬", "💭", "🗯️", "♠️", "♣️", "♥️", "♦️", "🃏", "🎴", "🀄", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛", "🕜", "🕝", "🕞", "🕟", "🕠", "🕡", "🕢", "🕣", "🕤", "🕥", "🕦", "🕧"];
 
@@ -147,6 +157,7 @@ export default function ConversationPage() {
 
   const sendMessage = useMutation(api.messages.sendMessage);
   const deleteMessage = useMutation(api.messages.deleteMessage);
+  const editMessage = useMutation(api.messages.editMessage);
   const markAsRead = useMutation(api.messages.markAsRead);
   const updateLastSeen = useMutation(api.messages.updateLastSeen);
 
@@ -211,6 +222,35 @@ export default function ConversationPage() {
       setMessageToDelete(null);
     } catch (error) {
       toast.error("Failed to delete message");
+    }
+  };
+
+  const handleCopy = (content?: string) => {
+    if (content) {
+      navigator.clipboard.writeText(content);
+      toast.success("Copied to clipboard");
+    }
+  };
+
+  const startEdit = (message: Message) => {
+    setEditingMessage(message);
+    setEditContent(message.content || "");
+  };
+
+  const handleEdit = async () => {
+    if (!clerkId || !editingMessage || !editContent.trim()) return;
+
+    try {
+      await editMessage({
+        clerkId,
+        messageId: editingMessage._id as unknown as Id<"messages">,
+        content: editContent.trim(),
+      });
+      toast.success("Message updated");
+      setEditingMessage(null);
+      setEditContent("");
+    } catch (error) {
+      toast.error("Failed to edit message");
     }
   };
 
@@ -392,7 +432,7 @@ export default function ConversationPage() {
         {/* Messages Area */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl mx-auto w-full scroll-smooth"
+          className="flex-1 overflow-y-auto px-4 py-18 space-y-6 max-w-3xl mx-auto w-full scroll-smooth"
         >
           {messages.length === 0 && !messagesData ? (
             <div className="space-y-6">
@@ -443,19 +483,20 @@ export default function ConversationPage() {
                   const isHovered = hoveredMessageId === message._id;
 
                   return (
-                    <motion.div
-                      key={message._id}
-                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.2, delay: index * 0.03 }}
-                      onMouseEnter={() => setHoveredMessageId(message._id)}
-                      onMouseLeave={() => setHoveredMessageId(null)}
-                      className={cn(
-                        "flex gap-2 group relative",
-                        isCurrentUser ? "flex-row-reverse" : "flex-row",
-                        message.isConsecutive ? "mt-0.5" : "mt-3"
-                      )}
-                    >
+                    <ContextMenu key={message._id}>
+                      <ContextMenuTrigger asChild>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.2, delay: index * 0.03 }}
+                          onMouseEnter={() => setHoveredMessageId(message._id)}
+                          onMouseLeave={() => setHoveredMessageId(null)}
+                          className={cn(
+                            "flex gap-2 group relative",
+                            isCurrentUser ? "flex-row-reverse" : "flex-row",
+                            message.isConsecutive ? "mt-0.5" : "mt-3"
+                          )}
+                        >
                       {!isCurrentUser && (
                         <div className={cn("w-9 shrink-0 transition-all duration-300", 
                           showAvatar ? "opacity-100 scale-100" : "opacity-0 scale-90"
@@ -559,7 +600,11 @@ export default function ConversationPage() {
                                 {formatTime(message.createdAt)}
                               </span>
                               {isCurrentUser && (
-                                <CheckCheck className="h-3 w-3 text-primary-foreground/70" />
+                                message.isRead ? (
+                                  <CheckCheck className="h-3 w-3 text-primary-foreground/70" />
+                                ) : (
+                                  <Check className="h-3 w-3 text-primary-foreground/70" />
+                                )
                               )}
                               {message.updatedAt && message.updatedAt !== message.createdAt && (
                                 <span className={cn(
@@ -617,7 +662,42 @@ export default function ConversationPage() {
                           </AnimatePresence>
                         </div>
                       </div>
-                    </motion.div>
+                      </motion.div>
+                      </ContextMenuTrigger>
+
+                      <ContextMenuContent className="w-40">
+                        <ContextMenuItem onClick={() => setReplyingTo(message)}>
+                          <CornerUpLeft className="h-4 w-4 mr-2" />
+                          Reply
+                        </ContextMenuItem>
+                        {message.content && (
+                          <ContextMenuItem onClick={() => handleCopy(message.content)}>
+                            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy
+                          </ContextMenuItem>
+                        )}
+                        {isCurrentUser && message.content && !message.isDeleted && (
+                          <ContextMenuItem onClick={() => startEdit(message)}>
+                            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
+                          </ContextMenuItem>
+                        )}
+                        <ContextMenuSeparator />
+                        {isCurrentUser && !message.isDeleted && (
+                          <ContextMenuItem 
+                            onClick={() => setMessageToDelete(message._id)}
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </ContextMenuItem>
+                        )}
+                      </ContextMenuContent>
+                    </ContextMenu>
                   );
                 })}
               </motion.div>
@@ -695,24 +775,18 @@ export default function ConversationPage() {
               )}
             </AnimatePresence>
 
-            <div className="flex items-end gap-2">
+            <div className="flex items-end gap-2 px-3">
               <div className="flex items-center gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-muted">
-                      <Paperclip className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Attach file</TooltipContent>
-                </Tooltip>
+                
                 
                 <UploadButton<OurFileRouter, "messageMedia">
                   endpoint="messageMedia"
                   onClientUploadComplete={(res) => {
                     if (res?.[0]) {
+                      const fileType = res[0].type?.startsWith("video") ? "video" : "image";
                       setPendingMedia({
                         url: res[0].ufsUrl || res[0].url,
-                        type: "image",
+                        type: fileType,
                       });
                     }
                     setIsUploading(false);
@@ -776,18 +850,18 @@ export default function ConversationPage() {
                 disabled={isUploading || (!newMessage.trim() && !pendingMedia)}
                 size="icon"
                 className={cn(
-                  "h-11 w-11 rounded-full shrink-0 transition-all duration-200",
+                  "h-11 w-11 rounded-full shrink-0 transition-all  flex items-center justify-center duration-200",
                   (newMessage.trim() || pendingMedia)
                     ? "bg-primary hover:bg-primary/90 scale-100"
-                    : "bg-muted scale-95"
+                    : "bg-primary/50 scale-95"
                 )}
               >
                 {isUploading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
                   <Send className={cn(
-                    "h-5 w-5 transition-transform",
-                    (newMessage.trim() || pendingMedia) && "translate-x-0.5 -translate-y-0.5"
+                    "h-5 w-5 transition-transform  duration-200",
+                    (newMessage.trim() || pendingMedia) && " rotate-12 transition-all duration-200"
                   )} />
                 )}
               </Button>
@@ -842,6 +916,44 @@ export default function ConversationPage() {
                 onClick={() => messageToDelete && handleDelete(messageToDelete)}
               >
                 Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Message Dialog */}
+        <Dialog open={!!editingMessage} onOpenChange={() => { setEditingMessage(null); setEditContent(""); }}>
+          <DialogContent showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>Edit Message</DialogTitle>
+              <DialogDescription>
+                Make changes to your message below.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleEdit();
+                  }
+                }}
+                placeholder="Edit your message..."
+                className="w-full"
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setEditingMessage(null); setEditContent(""); }}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleEdit}
+                disabled={!editContent.trim()}
+              >
+                Save Changes
               </Button>
             </DialogFooter>
           </DialogContent>

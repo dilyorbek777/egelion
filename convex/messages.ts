@@ -214,6 +214,17 @@ export const getMessages = query({
 
     const messages = await queryBuilder.take(limit);
 
+    // Get other participant's lastReadAt
+    const allParticipants = await ctx.db
+      .query("conversationParticipants")
+      .withIndex("by_conversation", (q) =>
+        q.eq("conversationId", conversationId)
+      )
+      .collect();
+
+    const otherParticipant = allParticipants.find(p => p.userId !== user._id);
+    const otherLastReadAt = otherParticipant?.lastReadAt;
+
     // Get sender details for each message
     const messagesWithSender = await Promise.all(
       messages.map(async (message) => {
@@ -233,6 +244,7 @@ export const getMessages = query({
           ...message,
           sender,
           replyTo,
+          isRead: otherLastReadAt ? otherLastReadAt >= message.createdAt : false,
         };
       })
     );
@@ -349,6 +361,41 @@ export const deleteMessage = mutation({
       content: undefined,
       mediaUrl: undefined,
       mediaType: undefined,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+// Edit a message
+export const editMessage = mutation({
+  args: {
+    clerkId: v.string(),
+    messageId: v.id("messages"),
+    content: v.string(),
+  },
+  handler: async (ctx, { clerkId, messageId, content }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    const message = await ctx.db.get(messageId);
+    if (!message) throw new Error("Message not found");
+
+    if (message.senderId !== user._id) {
+      throw new Error("Can only edit own messages");
+    }
+
+    if (!content.trim()) {
+      throw new Error("Message content cannot be empty");
+    }
+
+    await ctx.db.patch(messageId, {
+      content: content.trim(),
       updatedAt: Date.now(),
     });
 
