@@ -63,7 +63,7 @@ interface UserSearchResult {
   _id: Id<"users">;
   username: string;
   fullName: string;
-  profileImage?: string;
+  profileImage?: string | null;
 }
 
 export default function MessagesPage() {
@@ -193,13 +193,13 @@ export default function MessagesPage() {
         {showSearch && searchResults && searchResults.length > 0 && (
           <div className="border-b">
             {searchResults.map((user: UserSearchResult) => (
-              <button
+              <button 
                 key={user._id.toString()}
                 onClick={() => handleUserClick(user._id)}
                 className="w-full flex items-center gap-3 p-4 hover:bg-muted transition-colors"
               >
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.profileImage} />
+                  <AvatarImage src={user.profileImage ?? undefined} />
                   <AvatarFallback>{user.fullName[0] ?? "?"}</AvatarFallback>
                 </Avatar>
                 <div className="text-left">
@@ -256,7 +256,7 @@ export default function MessagesPage() {
                   >
                     <div className="relative">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={otherUser.profileImage} />
+                        <AvatarImage src={otherUser.profileImage ?? undefined} />
                         <AvatarFallback>{otherUser.fullName[0] ?? "?"}</AvatarFallback>
                       </Avatar>
                       {isUserOnline(otherUser.lastSeenAt) && (
