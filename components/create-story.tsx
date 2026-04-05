@@ -17,6 +17,7 @@ import { X, ImageIcon, Film, Globe, Users, Loader2, Sparkles } from "lucide-reac
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ImageEditor } from "@/components/image-editor";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -57,15 +58,33 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
   const [privacy, setPrivacy] = useState<"everyone" | "followers">("followers");
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
 
   const handleFileChange = (file: File | null) => {
     if (!file) return;
     setUploadError(null);
     setUploadProgress(0);
     setUploadComplete(false);
-    setMediaFile(file);
-    setMediaPreview(URL.createObjectURL(file));
-    setMediaType(file.type.startsWith("video") ? "video" : "image");
+    
+    const isVideo = file.type.startsWith("video");
+    setMediaType(isVideo ? "video" : "image");
+    
+    if (isVideo) {
+      // Videos don't go through the image editor
+      setMediaFile(file);
+      setMediaPreview(URL.createObjectURL(file));
+    } else {
+      // Open image editor for images
+      setMediaFile(file);
+      setIsImageEditorOpen(true);
+    }
+  };
+
+  const handleImageEditorSave = (editedFile: File) => {
+    setIsImageEditorOpen(false);
+    setMediaFile(editedFile);
+    setMediaPreview(URL.createObjectURL(editedFile));
+    setUploadComplete(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +172,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-background border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-[1000px] p-0 overflow-hidden bg-background border-0 shadow-2xl">
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-2">
           <div className="flex items-center gap-2">
@@ -379,6 +398,23 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
             </Button>
           </div>
         </form>
+
+        {/* Image Editor Modal */}
+        <ImageEditor
+          isOpen={isImageEditorOpen}
+          onClose={() => {
+            setIsImageEditorOpen(false);
+            // Clear media if user cancels editing
+            if (!mediaPreview) {
+              setMediaFile(null);
+            }
+          }}
+          imageFile={mediaFile}
+          onSave={handleImageEditorSave}
+          title="Edit Story Image"
+          defaultAspectRatio="9:16"
+          allowAspectRatioChange={true}
+        />
       </DialogContent>
     </Dialog>
   );

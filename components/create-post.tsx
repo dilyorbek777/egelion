@@ -13,6 +13,7 @@ import { ImageIcon, VideoIcon, X, Loader2, Send, Sparkles } from "lucide-react";
 import { UPLOAD_LIMITS } from "@/constants";
 import { CreateStory } from "./create-story";
 import { motion, AnimatePresence } from "framer-motion";
+import { ImageEditor } from "@/components/image-editor";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -53,6 +54,8 @@ export function CreatePost() {
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,9 +74,17 @@ export function CreatePost() {
     setUploadError(null);
     setUploadProgress(0);
     setUploadComplete(false);
-    setMediaFile(file);
-    setMediaPreview(URL.createObjectURL(file));
     setMediaType(isVideo ? "video" : "image");
+
+    if (isVideo) {
+      // Videos don't go through the image editor
+      setMediaFile(file);
+      setMediaPreview(URL.createObjectURL(file));
+    } else {
+      // Open image editor for images
+      setPendingImageFile(file);
+      setIsImageEditorOpen(true);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,6 +140,15 @@ export function CreatePost() {
     setMediaType(null);
     setUploadError(null);
     setUploadProgress(0);
+    setUploadComplete(false);
+    setPendingImageFile(null);
+  };
+
+  const handleImageEditorSave = (editedFile: File) => {
+    setIsImageEditorOpen(false);
+    setPendingImageFile(null);
+    setMediaFile(editedFile);
+    setMediaPreview(URL.createObjectURL(editedFile));
     setUploadComplete(false);
   };
 
@@ -322,6 +342,20 @@ export function CreatePost() {
 
       {/* Story Modal */}
       <CreateStory isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} />
+
+      {/* Image Editor Modal */}
+      <ImageEditor
+        isOpen={isImageEditorOpen}
+        onClose={() => {
+          setIsImageEditorOpen(false);
+          setPendingImageFile(null);
+        }}
+        imageFile={pendingImageFile}
+        onSave={handleImageEditorSave}
+        title="Edit Photo"
+        defaultAspectRatio="free"
+        allowAspectRatioChange={true}
+      />
     </form>
   );
 }

@@ -18,6 +18,7 @@ import { MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
 import Link from "next/link";
+import { ImageEditor } from "@/components/image-editor";
 
 export default function ProfilePage({
   params,
@@ -41,6 +42,8 @@ export default function ProfilePage({
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const getOrCreateConversation = useMutation(api.messages.getOrCreateConversation);
   const router = useRouter();
 
@@ -212,9 +215,20 @@ export default function ProfilePage({
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
+    
+    // Open image editor for cropping and adjustments
+    setPendingImageFile(file);
+    setIsImageEditorOpen(true);
+  };
+
+  const handleImageEditorSave = async (editedFile: File) => {
+    if (!user?.id) return;
+    
+    setIsImageEditorOpen(false);
     setIsUploadingImage(true);
+    
     try {
-      const res = await startUpload([file]);
+      const res = await startUpload([editedFile]);
       if (res?.[0]?.url) {
         await updateProfile({ clerkId: user.id, profileImage: res[0].url });
       }
@@ -222,6 +236,7 @@ export default function ProfilePage({
       console.error("Failed to upload image:", err);
     } finally {
       setIsUploadingImage(false);
+      setPendingImageFile(null);
     }
   };
 
@@ -545,6 +560,19 @@ export default function ProfilePage({
           </TabsContent>
         )}
       </Tabs>
+
+      <ImageEditor
+        isOpen={isImageEditorOpen}
+        onClose={() => {
+          setIsImageEditorOpen(false);
+          setPendingImageFile(null);
+        }}
+        imageFile={pendingImageFile}
+        onSave={handleImageEditorSave}
+        title="Edit Profile Picture"
+        defaultAspectRatio="1:1"
+        allowAspectRatioChange={true}
+      />
     </div>
   );
 }
