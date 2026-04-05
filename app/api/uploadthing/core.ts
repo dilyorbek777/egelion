@@ -15,8 +15,8 @@ export const ourFileRouter = {
   profileImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(handleAuth)
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Profile image upload complete:", file.url);
-      return { url: file.url };
+      console.log("Profile image upload complete:", file.ufsUrl);
+      return { url: file.ufsUrl };
     }),
 
   postMedia: f({
@@ -25,8 +25,8 @@ export const ourFileRouter = {
   })
     .middleware(handleAuth)
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Post media upload complete:", file.url, file.type);
-      return { url: file.url, type: file.type };
+      console.log("Post media upload complete:", file.ufsUrl, file.type);
+      return { url: file.ufsUrl, type: file.type };
     }),
 
   messageMedia: f({
@@ -35,8 +35,8 @@ export const ourFileRouter = {
   })
     .middleware(handleAuth)
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Message media upload complete:", file.url, file.type);
-      return { url: file.url, type: file.type };
+      console.log("Message media upload complete:", file.ufsUrl, file.type);
+      return { url: file.ufsUrl, type: file.type };
     }),
 } satisfies FileRouter;
 

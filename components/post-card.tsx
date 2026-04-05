@@ -30,7 +30,7 @@ interface PostCardProps {
     commentsCount: number;
     savesCount: number;
     authorId: Id<"users">;
-    author?: { username: string; profileImage?: string; fullName: string } | null;
+    author?: { username: string; profileImage?: string | null; fullName: string } | null;
   };
 }
 

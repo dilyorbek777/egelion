@@ -225,6 +225,15 @@ export default function ProfilePage({
     }
   };
 
+  const handleRemoveImage = async () => {
+    if (!user?.id || !profileUser?.profileImage) return;
+    try {
+      await updateProfile({ clerkId: user.id, profileImage: null });
+    } catch (err) {
+      console.error("Failed to remove image:", err);
+    }
+  };
+
   // ── Render ─────────────────────────────────────────────
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
@@ -234,35 +243,45 @@ export default function ProfilePage({
         <div className="flex flex-col sm:flex-row gap-6">
 
           {/* Avatar */}
-          <div className="relative group w-24 h-24 sm:w-32 sm:h-32 shrink-0">
-            {profileUser.profileImage ? (
-              <img
-                src={profileUser.profileImage}
-                alt={profileUser.fullName}
-                className="w-full h-full rounded-full object-cover border-4 border-background shadow-lg"
-              />
-            ) : (
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary border-4 border-background shadow-lg">
-                {profileUser.fullName[0]}
-              </div>
-            )}
-            {isOwner && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isUploadingImage}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed rounded-full z-10"
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="relative group w-24 h-24 sm:w-32 sm:h-32">
+              {profileUser.profileImage ? (
+                <img
+                  src={profileUser.profileImage}
+                  alt={profileUser.fullName}
+                  className="w-full h-full rounded-full object-cover border-4 border-background shadow-lg"
                 />
-                <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  {isUploadingImage ? (
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Camera className="w-6 h-6 text-white" />
-                  )}
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-3xl sm:text-4xl font-bold text-primary border-4 border-background shadow-lg">
+                  {profileUser.fullName[0]}
                 </div>
-              </>
+              )}
+              {isOwner && (
+                <>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed rounded-full z-10"
+                  />
+                  <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    {isUploadingImage ? (
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-white" />
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+            {isOwner && profileUser.profileImage && (
+              <button
+                onClick={handleRemoveImage}
+                className="text-xs text-destructive cursor-pointer hover:text-destructive/80 transition-colors"
+              >
+                Remove photo
+              </button>
             )}
           </div>
 

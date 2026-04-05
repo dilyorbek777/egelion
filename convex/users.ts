@@ -109,7 +109,7 @@ export const updateProfile = mutation({
     clerkId: v.string(),
     fullName: v.optional(v.string()),
     bio: v.optional(v.string()),
-    profileImage: v.optional(v.string()),
+    profileImage: v.optional(v.union(v.string(), v.null())),
     location: v.optional(v.string()),
     website: v.optional(v.string()),
     username: v.optional(v.string()),
