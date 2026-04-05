@@ -6,6 +6,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter, usePathname } from "next/navigation";
+import { PageLoading } from "@/components/loading";
 import { useEffect } from "react";
 
 export default function ProfileGuard({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,7 @@ export default function ProfileGuard({ children }: { children: React.ReactNode }
   }, [dbUser, router, pathname]);
 
   if (!isClerkLoaded || (clerkUser && dbUser === undefined)) {
-    return (<p>Loading...</p>);
+    return <PageLoading text="Loading your profile..." />;
   }
 
   if (dbUser && !dbUser.isProfileComplete && pathname !== "/profile-complete") {

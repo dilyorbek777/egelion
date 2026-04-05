@@ -38,6 +38,7 @@ export default function HomePage() {
 
   return (
     <div className="max-w-xl mx-auto pb-8">
+      
       <StoryBar />
       <div className="px-4 py-4 space-y-4">
         <CreatePost />
