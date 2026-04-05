@@ -24,7 +24,7 @@ interface Notification {
     _id: string;
     username: string;
     fullName: string;
-    profileImage?: string;
+    profileImage?: string | null;
   } | null;
   post?: {
     _id: string;
@@ -225,7 +225,7 @@ export default function NotificationsPage() {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <Avatar className="w-10 h-10">
-                        <AvatarImage src={notification.actor?.profileImage} />
+                        <AvatarImage src={notification.actor?.profileImage ?? undefined} />
                         <AvatarFallback>
                           {notification.actor?.fullName?.[0]?.toUpperCase()}
                         </AvatarFallback>
