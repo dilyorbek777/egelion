@@ -107,7 +107,7 @@ function VideoItem({
     if (!video) return;
 
     if (isActive) {
-      video.play().catch(() => {});
+      video.play().catch(() => { });
       setIsPlaying(true);
     } else {
       video.pause();
@@ -143,7 +143,7 @@ function VideoItem({
       setHeartPosition({ x, y });
       setShowDoubleTapHeart(true);
       setTimeout(() => setShowDoubleTapHeart(false), 800);
-      
+
       if (!liked) {
         handleLike();
       }
@@ -229,9 +229,9 @@ function VideoItem({
   };
 
   return (
-    <div className="relative h-full w-full snap-start snap-always md:flex md:items-center md:justify-center ">
+    <div className="relative h-[90vh] w-full snap-start snap-always md:flex md:items-center md:justify-center ">
       {/* Video Container - constrained on large screens */}
-      <div className="absolute top-0 inset-0 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-screen md:mx-auto" onClick={handleVideoClick}>
+      <div className="absolute top-0 inset-0 py-12 md:static md:h-full md:w-auto md:aspect-9/16 md:max-h-[80vh] md:mx-auto" onClick={handleVideoClick}>
         {post.mediaUrl && (
           <video
             ref={videoRef}
@@ -275,7 +275,7 @@ function VideoItem({
         {/* Mute Button */}
         <button
           onClick={toggleMute}
-          className="absolute top-4 right-4 z-30 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-md transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
+          className="absolute top-8 right-4 z-30 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-md transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
         >
           {isMuted ? (
             <VolumeX className="h-5 w-5" />
@@ -306,12 +306,12 @@ function VideoItem({
           <div className="flex flex-col items-center gap-1">
             <button
               onClick={handleLike}
-              className="group relative rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
+              className="group relative rounded-full bg-black/20 p-3  transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
             >
               <Heart
                 className={cn(
                   "h-7 w-7 transition-all duration-300",
-                  liked ? "fill-red-500 text-red-500 scale-110" : "text-black dark:text-white"
+                  liked ? "fill-red-500 text-red-500 scale-110 mix-blend-normal" : " text-white mix-blend-difference"
                 )}
               />
               <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -323,7 +323,7 @@ function VideoItem({
                 )}
               </span>
             </button>
-            <span className="text-xs font-semibold text-black dark:text-white drop-shadow-md">
+            <span className="text-xs font-semibold  text-white mix-blend-difference drop-shadow-md">
               {localLikesCount > 0 ? localLikesCount : "Like"}
             </span>
           </div>
@@ -334,50 +334,50 @@ function VideoItem({
               onClick={() => onOpenComments(post._id)}
               className="group rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
             >
-              <MessageCircle className="h-7 w-7 text-black dark:text-white" />
+              <MessageCircle className="h-7 w-7  text-white mix-blend-difference" />
             </button>
-            <span className="text-xs font-semibold text-black dark:text-white drop-shadow-md">
+            <span className="text-xs font-semibold  text-white mix-blend-difference drop-shadow-md">
               {post.commentsCount > 0 ? post.commentsCount : "Comment"}
             </span>
           </div>
-
           {/* Save Button */}
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1 ">
             <button
               onClick={handleSave}
-              className="group relative rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
+              className="group relative rounded-full bg-black/20 p-3 transition-all  hover:bg-black/40 hover:scale-110 active:scale-95"
             >
               <Bookmark
                 className={cn(
                   "h-7 w-7 transition-all duration-300",
-                  saved ? "fill-yellow-400 text-yellow-400 scale-110" : "text-black dark:text-white"
+                  saved ? "fill-yellow-400 text-yellow-400 scale-110" : " text-white mix-blend-difference"
                 )}
               />
             </button>
-            <span className="text-xs font-semibold text-black dark:text-white drop-shadow-md">
+            <span className="text-xs font-semibold mix-blend-difference text-white drop-shadow-md">
               {localSavesCount > 0 ? localSavesCount : "Save"}
             </span>
           </div>
-
           {/* Share Button */}
-          <div className="flex flex-col items-center gap-1 z-20">
+          <div className="flex flex-col items-center gap-1 ">
             <button
               onClick={handleShare}
-              className="group rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
+              className="group relative rounded-full bg-black/20 p-3 transition-all hover:bg-black/40 hover:scale-110 active:scale-95"
             >
-              <Share2 className="h-7 w-7 text-black dark:text-white" />
+              <Share2 className="h-7 w-7 text-white mix-blend-difference" />
             </button>
-            <span className="text-xs font-semibold text-black dark:text-white drop-shadow-md">Share</span>
+            <span className="text-xs font-semibold mix-blend-difference text-white drop-shadow-md">Share</span>
           </div>
+
+
         </div>
 
         {/* Bottom Info */}
-        <div className="absolute mx-auto bottom-20 md:bottom-4 left-0 right-0 p-4 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent pointer-events-auto">
+        <div className="absolute  max-w-3/4 bottom-18 md:bottom-4 left-0 right-0 p-4  pointer-events-auto">
           <div className="flex items-center justify-start w-fit gap-3 mb-3">
             <Link href={`/profile/${post.author?.username}`}>
               <Avatar className="h-11 w-11 border-2 border-white/80 shadow-lg transition-transform hover:scale-105">
                 <AvatarImage src={post.author?.profileImage ?? undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
+                <AvatarFallback className="bg-gradient-to-br from-primary mix-blend-difference to-primary/70 text-primary-foreground font-semibold">
                   {post.author?.username?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -385,18 +385,18 @@ function VideoItem({
             <div className="flex flex-col">
               <Link
                 href={`/profile/${post.author?.username}`}
-                className="font-bold text-black dark:text-white hover:underline drop-shadow-md"
+                className="font-bold  text-white mix-blend-difference tracking-wide hover:underline drop-shadow-md"
               >
                 @{post.author?.username}
               </Link>
-              <span className="text-xs text-black/80 dark:text-white/80">{post.author?.fullName}</span>
+              <span className="text-xs text-white mix-blend-difference">{post.author?.fullName}</span>
             </div>
             <Button
               size="sm"
               variant="secondary"
               onClick={handleFollow}
               className={cn(
-                "ml-auto bg-primary text-white border-0 hover:bg-white/30 backdrop-blur-sm text-xs font-semibold px-4",
+                "ml-auto bg-primary text-white  border-0 hover:bg-white/30 backdrop-blur-sm text-xs font-semibold px-4",
                 !post.author?._id || isOwnVideo ? "hidden" : ""
               )}
             >
@@ -405,23 +405,12 @@ function VideoItem({
           </div>
 
           {post.content && (
-            <p className="text-black dark:text-white text-sm mb-3 line-clamp-3 max-w-[80%] drop-shadow-md leading-relaxed">
+            <p className=" text-white mix-blend-difference text-sm mb-3 line-clamp-3 max-w-[80%] drop-shadow-md leading-relaxed">
               {post.content}
             </p>
           )}
 
-          {/* Music/Sound indicator */}
-          <div className="flex items-center gap-2 text-black/90 dark:text-white/90 text-xs">
-            <div className="flex items-center gap-1">
-              <div className="flex gap-0.5 items-end h-3">
-                <div className="w-0.5 bg-black dark:bg-white animate-pulse" style={{ height: "60%", animationDelay: "0ms" }} />
-                <div className="w-0.5 bg-black dark:bg-white animate-pulse" style={{ height: "100%", animationDelay: "150ms" }} />
-                <div className="w-0.5 bg-black dark:bg-white animate-pulse" style={{ height: "40%", animationDelay: "300ms" }} />
-                <div className="w-0.5 bg-black dark:bg-white animate-pulse" style={{ height: "80%", animationDelay: "450ms" }} />
-              </div>
-              <span className="font-medium drop-shadow">Original Sound</span>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
@@ -577,7 +566,7 @@ export default function VideosPage() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!videos) return;
-      
+
       // Don't capture if user is typing in an input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
@@ -688,7 +677,7 @@ export default function VideosPage() {
         </Button>
       </div>
 
-      
+
     </div>
   );
 }
