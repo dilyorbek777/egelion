@@ -1,22 +1,42 @@
 // components/ProfileGuard.tsx
 "use client";
 
-import { useCurrentUser } from "@/hooks/useCurrentUser"; // returns dbUser
+import { useUser } from "@clerk/nextjs";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ProfileGuard({ children }: { children: React.ReactNode }) {
-  const user = useCurrentUser();
+  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
+  const dbUser = useCurrentUser();
   const router = useRouter();
   const pathname = usePathname();
+  const upsertUser = useMutation(api.users.upsertFromClerk);
 
+  // Save user info when authenticated
   useEffect(() => {
-    if (user && (!user.username || !user.fullName) && pathname !== "/profile-complete") {
-      router.replace("/profile-complete"); // force complete profile
+    if (clerkUser && clerkUser.primaryEmailAddress) {
+      upsertUser({
+        clerkId: clerkUser.id,
+        email: clerkUser.primaryEmailAddress.emailAddress,
+      });
     }
-  }, [user, router, pathname]);
+  }, [clerkUser, upsertUser]);
 
-  if (user && (!user.username || !user.fullName) && pathname !== "/profile-complete") {
+  // Redirect if profile incomplete
+  useEffect(() => {
+    if (dbUser && !dbUser.isProfileComplete && pathname !== "/profile-complete") {
+      router.replace("/profile-complete");
+    }
+  }, [dbUser, router, pathname]);
+
+  if (!isClerkLoaded || (clerkUser && dbUser === undefined)) {
+    return <p>Loading...</p>;
+  }
+
+  if (dbUser && !dbUser.isProfileComplete && pathname !== "/profile-complete") {
     return <p>Redirecting to complete your profile...</p>;
   }
 

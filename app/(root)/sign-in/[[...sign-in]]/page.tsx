@@ -1,9 +1,4 @@
 import { SignIn } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
 import { CLERK_APPEARANCE } from "@/constants";
 
 export default function SignInPage() {
@@ -87,7 +82,7 @@ export default function SignInPage() {
               {/* Sign-in header */}
               <SignIn
                 appearance={CLERK_APPEARANCE}
-                fallbackRedirectUrl="/profile-complete"
+                fallbackRedirectUrl="/"
               />
             </div>
           </div>
