@@ -139,7 +139,7 @@ export function CreatePost() {
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b bg-card/50">
         <Avatar size="sm">
-          <AvatarImage src={user?.profileImage} alt={user?.bio || ""} />
+          <AvatarImage src={user?.profileImage || undefined} alt={user?.bio || ""} />
           <AvatarFallback>{userInitials}</AvatarFallback>
         </Avatar>
         <div className="flex-1">

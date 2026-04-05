@@ -14,7 +14,7 @@ interface StoryGroup {
   author: {
     _id: string;
     username: string;
-    profileImage?: string;
+    profileImage?: string | null;
     fullName: string;
   } | null;
   stories: {
@@ -89,7 +89,7 @@ export function StoryBar() {
             <div className="relative">
               <div className="w-[64px] h-[64px] rounded-full p-[2px] bg-gradient-to-br from-muted to-muted group-hover:from-primary/20 group-hover:to-primary/40 transition-all duration-300">
                 <Avatar className="w-full h-full ring-2 ring-background">
-                  <AvatarImage src={dbUser?.profileImage} className="object-cover" />
+                  <AvatarImage src={dbUser?.profileImage || undefined} className="object-cover" />
                   <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
                     {dbUser?.fullName?.[0]?.toUpperCase()}
                   </AvatarFallback>
@@ -125,7 +125,7 @@ export function StoryBar() {
                 )}
               >
                 <Avatar className="w-full h-full ring-2 ring-background transition-transform duration-300 group-hover:scale-[0.96]">
-                  <AvatarImage src={group.author?.profileImage} className="object-cover" />
+                  <AvatarImage src={group.author?.profileImage || undefined} className="object-cover" />
                   <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
                     {group.author?.fullName?.[0]?.toUpperCase()}
                   </AvatarFallback>

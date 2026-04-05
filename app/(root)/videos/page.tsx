@@ -26,7 +26,7 @@ interface VideoPost {
     _id: Id<"users">;
     username: string;
     fullName: string;
-    profileImage?: string;
+    profileImage?: string | null;
   } | null;
 }
 
@@ -40,7 +40,7 @@ interface Comment {
     _id: Id<"users">;
     username: string;
     fullName: string;
-    profileImage?: string;
+    profileImage?: string | null;
   } | null;
 }
 

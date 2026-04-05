@@ -6,9 +6,19 @@ import { Frown, Home, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import './globals.css'
 
+import { Noto_Sans, Outfit, Roboto_Slab, JetBrains_Mono, Inter } from "next/font/google";
+import "./globals.css";
+
+const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans', weight: ['400', '500', '600', '700'] });
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-geometric', weight: ['400', '500', '600', '700'] });
+const robotoSlab = Roboto_Slab({ subsets: ['latin'], variable: '--font-slab', weight: ['400', '500', '600', '700'] });
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', weight: ['400', '500', '600', '700'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-bold-heading', weight: ['400', '500', '600', '700', '800', '900'] });
+
+
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className={`min-h-screen bg-background flex flex-col items-center justify-center px-4 ${notoSans.variable} ${outfit.variable} ${robotoSlab.variable} ${jetbrainsMono.variable} ${inter.variable} font-sans`}>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
