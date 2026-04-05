@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 interface Notification {
   _id: string;
   userId: string;
-  type: "like" | "comment" | "save" | "follow" | "message";
+  type: "like" | "comment" | "save" | "follow" | "message" | "post" | "story";
   actorId: string;
   postId?: string;
   read: boolean;
@@ -40,6 +40,8 @@ const notificationIcons = {
   save: Bookmark,
   follow: UserPlus,
   message: Mail,
+  post: Bell,
+  story: Bell,
 };
 
 const notificationColors = {
@@ -48,6 +50,8 @@ const notificationColors = {
   save: "text-yellow-500",
   follow: "text-green-500",
   message: "text-purple-500",
+  post: "text-primary",
+  story: "text-pink-500",
 };
 
 const getNotificationText = (notification: Notification): string => {
@@ -63,6 +67,10 @@ const getNotificationText = (notification: Notification): string => {
       return `${actorName} started following you`;
     case "message":
       return `${actorName} sent you a message`;
+    case "post":
+      return `${actorName} created a new post`;
+    case "story":
+      return `${actorName} shared a story`;
     default:
       return "You have a new notification";
   }
