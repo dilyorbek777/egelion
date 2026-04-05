@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useState, useEffect, useRef } from "react";
-import { Bell, Heart, MessageCircle, Bookmark, X, UserPlus, Mail } from "lucide-react";
+import { Bell, Heart, MessageCircle, Bookmark, X, UserPlus, Mail, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {   Skeleton } from "@/components/loading";
 import Link from "next/link";
@@ -24,6 +24,7 @@ export function Notifications() {
     clerkId ? { clerkId } : "skip"
   );
   const markRead = useMutation(api.interactions.markNotificationRead);
+  const markAllRead = useMutation(api.interactions.markAllNotificationsRead);
   const prevNotificationsRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -123,14 +124,27 @@ export function Notifications() {
         <div className="absolute right-0 mt-2 w-80 bg-background border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-4 border-b flex items-center justify-between">
             <h3 className="font-semibold">Notifications</h3>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(false)}
-              className="h-6 w-6"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              {unreadCount !== undefined && unreadCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => clerkId && markAllRead({ clerkId })}
+                  className="h-7 text-xs"
+                >
+                  <CheckCheck className="w-3 h-3 mr-1" />
+                  Mark all
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="h-6 w-6"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="divide-y">

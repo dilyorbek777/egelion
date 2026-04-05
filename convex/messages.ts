@@ -584,3 +584,109 @@ export const deleteConversation = mutation({
     return { success: true };
   },
 });
+
+// Set typing status
+export const setTypingStatus = mutation({
+  args: {
+    clerkId: v.string(),
+    conversationId: v.id("conversations"),
+    isTyping: v.boolean(),
+  },
+  handler: async (ctx, { clerkId, conversationId, isTyping }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    const participant = await ctx.db
+      .query("conversationParticipants")
+      .withIndex("by_user_conversation", (q) =>
+        q.eq("userId", user._id).eq("conversationId", conversationId)
+      )
+      .first();
+
+    if (!participant) throw new Error("Not a participant");
+
+    await ctx.db.patch(participant._id, {
+      isTyping,
+      typingUpdatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+// Set uploading status
+export const setUploadingStatus = mutation({
+  args: {
+    clerkId: v.string(),
+    conversationId: v.id("conversations"),
+    isUploading: v.boolean(),
+  },
+  handler: async (ctx, { clerkId, conversationId, isUploading }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    const participant = await ctx.db
+      .query("conversationParticipants")
+      .withIndex("by_user_conversation", (q) =>
+        q.eq("userId", user._id).eq("conversationId", conversationId)
+      )
+      .first();
+
+    if (!participant) throw new Error("Not a participant");
+
+    await ctx.db.patch(participant._id, {
+      isUploading,
+      uploadingUpdatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+// Get other participant's typing status
+export const getTypingStatus = query({
+  args: {
+    clerkId: v.string(),
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, { clerkId, conversationId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) return { isTyping: false, isUploading: false };
+
+    const participants = await ctx.db
+      .query("conversationParticipants")
+      .withIndex("by_conversation", (q) =>
+        q.eq("conversationId", conversationId)
+      )
+      .collect();
+
+    const otherParticipant = participants.find(p => p.userId !== user._id);
+
+    if (!otherParticipant) return { isTyping: false, isUploading: false };
+
+    const now = Date.now();
+    // Typing status expires after 5 seconds
+    const isTyping = otherParticipant.isTyping && otherParticipant.typingUpdatedAt
+      ? now - otherParticipant.typingUpdatedAt < 5000
+      : false;
+
+    // Uploading status expires after 10 seconds
+    const isUploading = otherParticipant.isUploading && otherParticipant.uploadingUpdatedAt
+      ? now - otherParticipant.uploadingUpdatedAt < 10000
+      : false;
+
+    return { isTyping, isUploading };
+  },
+});

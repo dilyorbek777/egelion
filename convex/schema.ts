@@ -122,6 +122,10 @@ export default defineSchema({
     userId: v.id("users"),
     joinedAt: v.number(),
     lastReadAt: v.optional(v.number()),
+    isTyping: v.optional(v.boolean()),
+    typingUpdatedAt: v.optional(v.number()),
+    isUploading: v.optional(v.boolean()),
+    uploadingUpdatedAt: v.optional(v.number()),
   })
     .index("by_conversation", ["conversationId"])
     .index("by_user", ["userId"])

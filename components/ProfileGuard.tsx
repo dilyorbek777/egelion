@@ -33,7 +33,7 @@ export default function ProfileGuard({ children }: { children: React.ReactNode }
   }, [dbUser, router, pathname]);
 
   if (!isClerkLoaded || (clerkUser && dbUser === undefined)) {
-    return <p>Loading...</p>;
+    return (<p>Loading...</p>);
   }
 
   if (dbUser && !dbUser.isProfileComplete && pathname !== "/profile-complete") {

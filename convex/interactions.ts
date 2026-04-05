@@ -344,6 +344,30 @@ export const markNotificationRead = mutation({
   },
 });
 
+export const markAllNotificationsRead = mutation({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+    if (!user) throw new Error("User not found");
+    
+    const unreadNotifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_user_unread", (q) => 
+        q.eq("userId", user._id).eq("read", false)
+      )
+      .collect();
+    
+    await Promise.all(
+      unreadNotifications.map((n) => ctx.db.patch(n._id, { read: true }))
+    );
+    
+    return unreadNotifications.length;
+  },
+});
+
 export const getUnreadCount = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {

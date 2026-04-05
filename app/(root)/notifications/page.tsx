@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Heart, MessageCircle, Bookmark, UserPlus, Bell, Mail } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Bookmark, UserPlus, Bell, Mail, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
@@ -81,6 +81,7 @@ export default function NotificationsPage() {
     clerkId ? { clerkId } : "skip"
   );
   const markRead = useMutation(api.interactions.markNotificationRead);
+  const markAllRead = useMutation(api.interactions.markAllNotificationsRead);
 
   useEffect(() => {
     if (!user) {
@@ -144,20 +145,33 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
-      <div className="flex items-center gap-2 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </Button>
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">Notifications</h1>
-          {unreadCount > 0 && (
-            <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5 rounded-full">
-              {unreadCount}
-            </span>
-          )}
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          </Button>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">Notifications</h1>
+            {unreadCount > 0 && (
+              <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
         </div>
+        {unreadCount > 0 && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => clerkId && markAllRead({ clerkId })}
+            className="hover:bg-primary/90"
+          >
+            <CheckCheck className="w-4 h-4 mr-1.5" />
+            Mark all as read
+          </Button>
+        )}
       </div>
 
       {notifications === undefined ? (

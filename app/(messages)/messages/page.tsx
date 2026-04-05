@@ -41,6 +41,7 @@ interface ConversationWithDetails {
     username: string;
     fullName: string;
     profileImage?: string;
+    lastSeenAt?: number;
   }>;
   lastMessage: {
     _id: string;
@@ -132,6 +133,13 @@ export default function MessagesPage() {
     if (message.mediaType === "image") return "📷 Photo";
     if (message.mediaType === "video") return "🎥 Video";
     return message.content || "";
+  };
+
+  // Helper to check if user is online (active within last 2 minutes)
+  const isUserOnline = (lastSeenAt?: number): boolean => {
+    if (!lastSeenAt) return false;
+    const diffMinutes = Math.floor((Date.now() - lastSeenAt) / 60000);
+    return diffMinutes < 2;
   };
 
   return (
@@ -246,10 +254,15 @@ export default function MessagesPage() {
                     href={`/messages/${conv.conversation._id}`}
                     className="flex items-center gap-3 flex-1 min-w-0"
                   >
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={otherUser.profileImage} />
-                      <AvatarFallback>{otherUser.fullName[0] ?? "?"}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={otherUser.profileImage} />
+                        <AvatarFallback>{otherUser.fullName[0] ?? "?"}</AvatarFallback>
+                      </Avatar>
+                      {isUserOnline(otherUser.lastSeenAt) && (
+                        <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-background" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p

@@ -127,7 +127,7 @@ export default function ConversationPage() {
     type: "image" | "video";
   } | null>(null);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<{url: string; type: "image" | "video"} | null>(null);
   const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
@@ -155,11 +155,20 @@ export default function ConversationPage() {
       : "skip"
   );
 
+  const typingStatus = useQuery(
+    api.messages.getTypingStatus,
+    clerkId && conversationId && conversation
+      ? { clerkId, conversationId: conversationId as unknown as Id<"conversations"> }
+      : "skip"
+  );
+
   const sendMessage = useMutation(api.messages.sendMessage);
   const deleteMessage = useMutation(api.messages.deleteMessage);
   const editMessage = useMutation(api.messages.editMessage);
   const markAsRead = useMutation(api.messages.markAsRead);
   const updateLastSeen = useMutation(api.messages.updateLastSeen);
+  const setTypingStatus = useMutation(api.messages.setTypingStatus);
+  const setUploadingStatus = useMutation(api.messages.setUploadingStatus);
 
   // Mark as read when opening conversation
   useEffect(() => {
@@ -187,6 +196,29 @@ export default function ConversationPage() {
     
     return () => clearInterval(interval);
   }, [clerkId, updateLastSeen]);
+
+  // Track typing status
+  useEffect(() => {
+    if (!clerkId || !conversationId) return;
+
+    const hasContent = newMessage.trim().length > 0;
+    setTypingStatus({
+      clerkId,
+      conversationId: conversationId as unknown as Id<"conversations">,
+      isTyping: hasContent,
+    });
+  }, [newMessage, clerkId, conversationId, setTypingStatus]);
+
+  // Track uploading status
+  useEffect(() => {
+    if (!clerkId || !conversationId) return;
+
+    setUploadingStatus({
+      clerkId,
+      conversationId: conversationId as unknown as Id<"conversations">,
+      isUploading: isUploading,
+    });
+  }, [isUploading, clerkId, conversationId, setUploadingStatus]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -402,13 +434,27 @@ export default function ConversationPage() {
                     </p>
                     {(() => {
                       const { text, isOnline } = getOnlineStatus(otherParticipant.lastSeenAt);
+                      const isTyping = typingStatus?.isTyping;
+                      const isUploading = typingStatus?.isUploading;
+                      
+                      let statusText = text;
+                      let statusColor = isOnline ? "bg-emerald-500" : "bg-gray-400";
+                      
+                      if (isUploading) {
+                        statusText = "Sending media...";
+                        statusColor = "bg-amber-500 animate-pulse";
+                      } else if (isTyping) {
+                        statusText = "Typing...";
+                        statusColor = "bg-emerald-500 animate-pulse";
+                      }
+                      
                       return (
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <span className={cn(
                             "inline-block w-1.5 h-1.5 rounded-full",
-                            isOnline ? "bg-emerald-500" : "bg-gray-400"
+                            statusColor
                           )} />
-                          {text}
+                          {statusText}
                         </p>
                       );
                     })()}
@@ -562,7 +608,7 @@ export default function ConversationPage() {
                               <div className="mb-2 -mx-1">
                                 {message.mediaType === "image" ? (
                                   <button
-                                    onClick={() => setSelectedImage(message.mediaUrl!)}
+                                    onClick={() => setSelectedMedia({ url: message.mediaUrl!, type: "image" })}
                                     className="block overflow-hidden rounded-xl hover:opacity-95 transition-opacity"
                                   >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -574,11 +620,15 @@ export default function ConversationPage() {
                                     />
                                   </button>
                                 ) : message.mediaType === "video" ? (
-                                  <video
-                                    src={message.mediaUrl}
-                                    controls
-                                    className="max-w-full max-h-64 rounded-xl"
-                                  />
+                                  <button
+                                    onClick={() => setSelectedMedia({ url: message.mediaUrl!, type: "video" })}
+                                    className="block overflow-hidden rounded-xl hover:opacity-95 transition-opacity"
+                                  >
+                                    <video
+                                      src={message.mediaUrl}
+                                      className="max-w-full max-h-64 rounded-xl"
+                                    />
+                                  </button>
                                 ) : null}
                               </div>
                             )}
@@ -747,7 +797,7 @@ export default function ConversationPage() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex items-center gap-3"
+                  className="flex items-center gap-3 px-8"
                 >
                   <div className="relative">
                     {pendingMedia.type === "image" ? (
@@ -869,31 +919,40 @@ export default function ConversationPage() {
           </div>
         </motion.div>
 
-        {/* Image Lightbox */}
+        {/* Media Lightbox */}
         <AnimatePresence>
-          {selectedImage && (
+          {selectedMedia && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedImage(null)}
+              onClick={() => setSelectedMedia(null)}
               className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
             >
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full"
-                onClick={() => setSelectedImage(null)}
+                className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full z-50"
+                onClick={() => setSelectedMedia(null)}
               >
                 <X className="h-6 w-6" />
               </Button>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedImage}
-                alt="Full size"
-                className="max-w-full max-h-full rounded-lg object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
+              {selectedMedia.type === "image" ? (
+                <img
+                  src={selectedMedia.url}
+                  alt="Full size"
+                  className="max-md:w-full max-md:h-auto h-full w-auto max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <video
+                  src={selectedMedia.url}
+                  controls
+                  autoPlay
+                  className="max-md:w-full max-md:h-auto h-full w-auto max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
