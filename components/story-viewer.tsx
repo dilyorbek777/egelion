@@ -46,7 +46,7 @@ interface StoryGroup {
   author: {
     _id: string;
     username: string;
-    profileImage?: string;
+    profileImage?: string | null;
     fullName: string;
   } | null;
   stories: Story[];
@@ -237,7 +237,7 @@ export function StoryViewer({
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <Avatar className="w-9 h-9 ring-2 ring-white/30">
-              <AvatarImage src={currentGroup.author?.profileImage} />
+              <AvatarImage src={currentGroup.author?.profileImage ?? undefined} />
               <AvatarFallback className="text-xs bg-linear-to-br from-primary/80 to-primary text-white font-medium">
                 {currentGroup.author?.fullName?.[0]?.toUpperCase()}
               </AvatarFallback>
@@ -482,7 +482,7 @@ function StoryViewers({ storyId }: { storyId: Id<"stories"> }) {
           className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors"
         >
           <Avatar className="w-11 h-11">
-            <AvatarImage src={view.viewer?.profileImage} />
+            <AvatarImage src={view.viewer?.profileImage ?? undefined} />
             <AvatarFallback className="bg-linear-to-br from-primary/80 to-primary text-white text-sm font-medium">
               {view.viewer?.fullName[0]?.toUpperCase()}
             </AvatarFallback>

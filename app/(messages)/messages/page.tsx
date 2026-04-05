@@ -40,7 +40,7 @@ interface ConversationWithDetails {
     _id: string;
     username: string;
     fullName: string;
-    profileImage?: string;
+    profileImage?: string | null;
     lastSeenAt?: number;
   }>;
   lastMessage: {

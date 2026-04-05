@@ -61,7 +61,7 @@ import {
 } from "@/components/ui/context-menu";
 
 interface Message {
-  _id: string;
+  _id: Id<"messages">;
   conversationId: string;
   senderId: string;
   content?: string;
@@ -73,13 +73,13 @@ interface Message {
   replyToId?: string;
   isRead?: boolean;
   sender: {
-    _id: string;
+    _id: Id<"users">;
     username: string;
     fullName: string;
     profileImage?: string | null;
   } | null;
   replyTo?: {
-    _id: string;
+    _id: Id<"messages">;
     content?: string;
     mediaUrl?: string;
     mediaType?: "image" | "video";
@@ -91,24 +91,24 @@ interface Message {
 
 interface ConversationDetails {
   conversation: {
-    _id: string;
+    _id: Id<"conversations">;
     createdAt: number;
     updatedAt: number;
     lastMessageAt?: number;
   };
   participants: Array<{
-    _id: string;
+    _id: Id<"conversationParticipants">;
     userId: string;
     user: {
-      _id: string;
+      _id: Id<"users">;
       username: string;
       fullName: string;
-      profileImage?: string;
+      profileImage?: string | null;
       lastSeenAt?: number;
     };
   }>;
   currentUserParticipant: {
-    _id: string;
+    _id: Id<"conversationParticipants">;
     lastReadAt?: number;
   };
 }
