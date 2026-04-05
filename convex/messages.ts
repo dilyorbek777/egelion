@@ -2,7 +2,44 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-// Get all conversations for a user
+// Get total unread messages count for a user
+export const getTotalUnreadCount = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, { clerkId }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) return 0;
+
+    const participants = await ctx.db
+      .query("conversationParticipants")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    let totalUnread = 0;
+
+    for (const participant of participants) {
+      const messages = await ctx.db
+        .query("messages")
+        .withIndex("by_conversation", (q) =>
+          q.eq("conversationId", participant.conversationId)
+        )
+        .collect();
+
+      const unreadCount = messages.filter(
+        (m) =>
+          m.senderId !== user._id &&
+          (!participant.lastReadAt || m.createdAt > participant.lastReadAt)
+      ).length;
+
+      totalUnread += unreadCount;
+    }
+
+    return totalUnread;
+  },
+});
 export const getConversations = query({
   args: { clerkId: v.string() },
   handler: async (ctx, { clerkId }) => {

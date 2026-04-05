@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Home,  Plus, User, Clapperboard, MessageCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -19,6 +20,11 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user } = useUser();
   const clerkId = user?.id ?? "";
+
+  const unreadCount = useQuery(
+    api.messages.getTotalUnreadCount,
+    clerkId ? { clerkId } : "skip"
+  );
 
   const dbUser = useQuery(
     api.users.getByClerkId,
@@ -49,13 +55,23 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 min-w-[64px] py-2 px-3 rounded-lg transition-colors",
+                "flex flex-col items-center justify-center gap-1 min-w-[64px] py-2 px-3 rounded-lg transition-colors relative",
                 isActive
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
+              <div className="relative">
+                <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
+                {item.label === "Messages" && unreadCount !== undefined && unreadCount > 0 && (
+                  <Badge 
+                    variant="default" 
+                    className="absolute -top-1.5 -right-2 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
+                  >
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </Badge>
+                )}
+              </div>
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           );

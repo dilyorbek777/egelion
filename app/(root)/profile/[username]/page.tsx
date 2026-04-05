@@ -14,6 +14,8 @@ import {
   Link as LinkIcon, Grid3X3, PlayCircle, Settings,
   UserPlus, UserCheck, Bookmark,
 } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
 import Link from "next/link";
 
@@ -39,6 +41,8 @@ export default function ProfilePage({
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const getOrCreateConversation = useMutation(api.messages.getOrCreateConversation);
+  const router = useRouter();
 
   const updateProfile = useMutation(api.users.updateProfile);
   const toggleFollow = useMutation(api.interactions.toggleFollow);
@@ -119,10 +123,26 @@ export default function ProfilePage({
   const followersCount = followStats?.followersCount ?? 0;
   const followingCount = followStats?.followingCount ?? 0;
 
-  const handleFollow = async () => {
+  const handleMessageClick = async () => {
     if (!user?.id || !profileUser) return;
     try {
-      await toggleFollow({ clerkId: user.id, targetUserId: profileUser._id });
+      const conversationId = await getOrCreateConversation({
+        clerkId: user.id,
+        otherUserId: profileUser._id,
+      });
+      router.push(`/messages/${conversationId}`);
+    } catch (err) {
+      console.error("Failed to create conversation:", err);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!user?.id || !profileUser?._id) return;
+    try {
+      await toggleFollow({
+        clerkId: user.id,
+        targetUserId: profileUser._id,
+      });
     } catch (err) {
       console.error("Failed to toggle follow:", err);
     }
@@ -275,23 +295,40 @@ export default function ProfilePage({
                           <Settings className="w-4 h-4" />
                         </Link>
                       </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href="/messages">
+                          <MessageSquare className="w-4 h-4 mr-1" /> See messages
+                        </Link>
+                      </Button>
                     </>
                   )}
                 </div>
               ) : (
-                <Button
-                  size="sm"
-                  variant={isFollowing ? "outline" : "default"}
-                  onClick={handleFollow}
-                  disabled={!user}
-                >
-                  {isFollowing ? (
-                    <><UserCheck className="w-4 h-4 mr-1" /> Following</>
-                  ) : (
-                    <><UserPlus className="w-4 h-4 mr-1" /> Follow</>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={isFollowing ? "outline" : "default"}
+                    onClick={handleFollow}
+                    disabled={!user}
+                  >
+                    {isFollowing ? (
+                      <><UserCheck className="w-4 h-4 mr-1" /> Following</>
+                    ) : (
+                      <><UserPlus className="w-4 h-4 mr-1" /> Follow</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleMessageClick}
+                    disabled={!user}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-1" /> Message
+                  </Button>
+                </div>
               )}
+
+              
             </div>
 
             {/* Stats */}

@@ -5,6 +5,7 @@ import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Notifications } from "@/components/notifications";
+import { Badge } from "@/components/ui/badge";
 import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon, Sparkles, Video, MessageCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,11 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
   const pathname = usePathname();
+
+  const unreadCount = useQuery(
+    api.messages.getTotalUnreadCount,
+    clerkId ? { clerkId } : "skip"
+  );
 
   const dbUser = useQuery(
     api.users.getByClerkId,
@@ -69,7 +75,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>
+              <Link key={item.href} href={item.href} className="relative">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -80,7 +86,17 @@ export function Header() {
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
-                  <item.icon className={cn("w-4 h-4", isActive(item.href) && "stroke-[2.5]")} />
+                  <div className="relative">
+                    <item.icon className={cn("w-4 h-4", isActive(item.href) && "stroke-[2.5]")} />
+                    {item.label === "Messages" && unreadCount !== undefined && unreadCount > 0 && (
+                      <Badge 
+                        variant="default" 
+                        className="absolute -top-1.5 -right-2 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
+                  </div>
                   <span className="hidden lg:inline">{item.label}</span>
                 </Button>
               </Link>
@@ -107,6 +123,7 @@ export function Header() {
           <div className="flex items-center gap-1">
             {/* Theme Toggle */}
 
+            
             <Link href="/search">
               <Search className="text-sm h-[18px] w-[18px]  transition-all rotate-0 scale-100" />
             </Link>
@@ -170,7 +187,17 @@ export function Header() {
                       : "text-muted-foreground"
                   )}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <div className="relative">
+                    <item.icon className="w-5 h-5" />
+                    {item.label === "Messages" && unreadCount !== undefined && unreadCount > 0 && (
+                      <Badge 
+                        variant="default" 
+                        className="absolute -top-1 -right-2 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
+                      >
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
+                  </div>
                   {item.label}
                 </Button>
               </Link>
