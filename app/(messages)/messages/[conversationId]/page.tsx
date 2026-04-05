@@ -76,7 +76,7 @@ interface Message {
     _id: string;
     username: string;
     fullName: string;
-    profileImage?: string;
+    profileImage?: string | null;
   } | null;
   replyTo?: {
     _id: string;
@@ -413,7 +413,7 @@ export default function ConversationPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar className="h-11 w-11 ring-2 ring-border ring-offset-2 ring-offset-background">
-                      <AvatarImage src={otherParticipant.profileImage} />
+                      <AvatarImage src={otherParticipant.profileImage ?? undefined} />
                       <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
                         {otherParticipant.fullName?.[0]?.toUpperCase() ?? "?"}
                       </AvatarFallback>
@@ -549,7 +549,7 @@ export default function ConversationPage() {
                         )}>
                           {showAvatar && (
                             <Avatar className="h-9 w-9">
-                              <AvatarImage src={message.sender?.profileImage} />
+                              <AvatarImage src={message.sender?.profileImage ?? undefined} />
                               <AvatarFallback className="text-xs bg-muted">
                                 {message.sender?.fullName?.[0]?.toUpperCase() ?? "?"}
                               </AvatarFallback>
