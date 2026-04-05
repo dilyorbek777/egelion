@@ -48,9 +48,10 @@ export default defineSchema({
 
   notifications: defineTable({
     userId: v.id("users"),
-    type: v.union(v.literal("like"), v.literal("comment"), v.literal("save"), v.literal("follow"), v.literal("message")),
+    type: v.union(v.literal("like"), v.literal("comment"), v.literal("save"), v.literal("follow"), v.literal("message"), v.literal("post"), v.literal("story")),
     actorId: v.id("users"),
     postId: v.optional(v.id("posts")),
+    storyId: v.optional(v.id("stories")),
     conversationId: v.optional(v.id("conversations")),
     read: v.boolean(),
   }).index("by_user", ["userId"])

@@ -39,6 +39,24 @@ export const create = mutation({
       likesCount: 0,
     });
 
+    // Notify all followers about the new story
+    const followers = await ctx.db
+      .query("follows")
+      .withIndex("by_following", (q) => q.eq("followingId", user._id))
+      .collect();
+
+    await Promise.all(
+      followers.map((follow) =>
+        ctx.db.insert("notifications", {
+          userId: follow.followerId,
+          type: "story",
+          actorId: user._id,
+          storyId: storyId,
+          read: false,
+        })
+      )
+    );
+
     return storyId;
   },
 });

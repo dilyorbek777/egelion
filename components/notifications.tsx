@@ -62,7 +62,7 @@ export function Notifications() {
     await markRead({ clerkId, notificationId });
   };
 
-  const getNotificationIcon = (type: "like" | "comment" | "save" | "follow" | "message") => {
+  const getNotificationIcon = (type: "like" | "comment" | "save" | "follow" | "message" | "post" | "story") => {
     switch (type) {
       case "like":
         return <Heart className="w-4 h-4 text-red-500 fill-current" />;
@@ -74,11 +74,15 @@ export function Notifications() {
         return <UserPlus className="w-4 h-4 text-green-500" />;
       case "message":
         return <Mail className="w-4 h-4 text-purple-500" />;
+      case "post":
+        return <MessageCircle className="w-4 h-4 text-blue-500" />;
+      case "story":
+        return <MessageCircle className="w-4 h-4 text-pink-500" />;
     }
   };
 
   const getNotificationText = (
-    type: "like" | "comment" | "save" | "follow" | "message",
+    type: "like" | "comment" | "save" | "follow" | "message" | "post" | "story",
     actorName?: string,
     username?: string,
     postId?: string,
@@ -99,6 +103,10 @@ export function Notifications() {
         return <>{actorLink} started following you</>;
       case "message":
         return <>{actorLink} sent you a {messageLink}</>;
+      case "post":
+        return <>{actorLink} created a new post</>;
+      case "story":
+        return <>{actorLink} shared a new story</>;
     }
   };
 

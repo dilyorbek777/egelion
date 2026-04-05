@@ -25,7 +25,7 @@ export const create = mutation({
       .first();
     if (!user) throw new Error("User not found");
 
-    return ctx.db.insert("posts", {
+    const postId = await ctx.db.insert("posts", {
       authorId: user._id,
       content: args.content,
       mediaUrl: args.mediaUrl,
@@ -34,6 +34,26 @@ export const create = mutation({
       commentsCount: 0,
       savesCount: 0,
     });
+
+    // Notify all followers about the new post
+    const followers = await ctx.db
+      .query("follows")
+      .withIndex("by_following", (q) => q.eq("followingId", user._id))
+      .collect();
+
+    await Promise.all(
+      followers.map((follow) =>
+        ctx.db.insert("notifications", {
+          userId: follow.followerId,
+          type: "post",
+          actorId: user._id,
+          postId: postId,
+          read: false,
+        })
+      )
+    );
+
+    return postId;
   },
 });
 
