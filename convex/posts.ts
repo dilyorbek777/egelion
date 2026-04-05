@@ -1,5 +1,15 @@
 import { mutation, query } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 export const create = mutation({
   args: {
@@ -64,15 +74,36 @@ export const remove = mutation({
 });
 
 export const getFeed = query({
-  args: {},
-  handler: async (ctx) => {
-    const posts = await ctx.db.query("posts").order("desc").take(50);
-    return Promise.all(
-      posts.map(async (post) => {
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, { paginationOpts }) => {
+    const posts = await ctx.db
+      .query("posts")
+      .order("desc")
+      .paginate(paginationOpts);
+
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const recentPosts = posts.page.filter((p) => now - p._creationTime < oneDayMs);
+    const olderPosts = posts.page.filter((p) => now - p._creationTime >= oneDayMs);
+    const shuffledOlder = shuffleArray(olderPosts);
+
+    const orderedPosts = [...recentPosts, ...shuffledOlder];
+
+    const postsWithAuthor = await Promise.all(
+      orderedPosts.map(async (post) => {
         const author = await ctx.db.get(post.authorId);
         return { ...post, author };
       })
     );
+
+    return {
+      page: postsWithAuthor,
+      continueCursor: posts.continueCursor,
+      isDone: posts.isDone,
+    };
   },
 });
 
