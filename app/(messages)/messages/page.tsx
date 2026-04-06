@@ -10,7 +10,7 @@ import { formatDistanceToNow } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle, ArrowLeft, Trash2, MoreVertical } from "lucide-react";
+import { Search, MessageCircle, ArrowLeft, Trash2, MoreVertical, Home } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
 import {
   Dialog,
@@ -171,6 +171,7 @@ export default function MessagesPage() {
               </>
             ) : (
               <>
+                <Link href="/" className="text-xl font-semibold"><Home /></Link>
                 <h1 className="text-xl font-semibold">Messages</h1>
                 <Button
                   variant="ghost"
@@ -193,7 +194,7 @@ export default function MessagesPage() {
         {showSearch && searchResults && searchResults.length > 0 && (
           <div className="border-b">
             {searchResults.map((user: UserSearchResult) => (
-              <button 
+              <button
                 key={user._id.toString()}
                 onClick={() => handleUserClick(user._id)}
                 className="w-full flex items-center gap-3 p-4 hover:bg-muted transition-colors"
