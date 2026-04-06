@@ -767,7 +767,7 @@ export default function ConversationPage() {
           className="fixed left-0 right-0 bottom-0 z-50"
         >
           <div className="border-t bg-background/90 backdrop-blur-md shadow-lg">
-            <div className="max-w-3xl max-md:mb-18 mx-auto px-4 py-3 space-y-3">
+            <div className="max-w-3xl max-md:mb-16 mx-auto px-4 py-8 space-y-3">
               <AnimatePresence>
                 {replyingTo && (
                   <motion.div
