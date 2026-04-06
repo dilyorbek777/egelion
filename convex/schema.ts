@@ -24,7 +24,9 @@ export default defineSchema({
     likesCount: v.number(),
     commentsCount: v.number(),
     savesCount: v.number(),
-  }).index("by_author", ["authorId"]),
+    hashtags: v.optional(v.array(v.string())),
+  })
+    .index("by_author", ["authorId"]),
 
   likes: defineTable({
     userId: v.id("users"),

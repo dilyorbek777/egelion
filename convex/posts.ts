@@ -2,6 +2,14 @@ import { mutation, query } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
+function extractHashtags(content: string | undefined): string[] {
+  if (!content) return [];
+  const hashtagRegex = /#(\w+)/g;
+  const matches = content.match(hashtagRegex);
+  if (!matches) return [];
+  return matches.map(tag => tag.slice(1).toLowerCase());
+}
+
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -25,6 +33,8 @@ export const create = mutation({
       .first();
     if (!user) throw new Error("User not found");
 
+    const hashtags = extractHashtags(args.content);
+
     const postId = await ctx.db.insert("posts", {
       authorId: user._id,
       content: args.content,
@@ -33,6 +43,7 @@ export const create = mutation({
       likesCount: 0,
       commentsCount: 0,
       savesCount: 0,
+      hashtags,
     });
 
     // Notify all followers about the new post
@@ -72,10 +83,12 @@ export const update = mutation({
       .first();
     const post = await ctx.db.get(args.postId);
     if (!post || post.authorId !== user?._id) throw new Error("Unauthorized");
+    const hashtags = extractHashtags(args.content);
     await ctx.db.patch(args.postId, { 
       content: args.content,
       mediaUrl: args.mediaUrl,
       mediaType: args.mediaType,
+      hashtags,
     });
   },
 });
@@ -200,5 +213,54 @@ export const getVideos = query({
         return { ...post, author, authorId: post.authorId };
       })
     );
+  },
+});
+
+export const searchByHashtag = query({
+  args: { tag: v.string() },
+  handler: async (ctx, { tag }) => {
+    const normalizedTag = tag.toLowerCase().replace(/^#/, "");
+    
+    const posts = await ctx.db
+      .query("posts")
+      .order("desc")
+      .take(100);
+    
+    const filteredPosts = posts.filter((post) =>
+      post.hashtags?.includes(normalizedTag)
+    );
+    
+    return Promise.all(
+      filteredPosts.map(async (post) => {
+        const author = await ctx.db.get(post.authorId);
+        return { ...post, author, authorId: post.authorId };
+      })
+    );
+  },
+});
+
+export const getTrendingHashtags = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, { limit }) => {
+    const posts = await ctx.db
+      .query("posts")
+      .order("desc")
+      .take(500);
+    
+    const hashtagCounts = new Map<string, number>();
+    
+    for (const post of posts) {
+      if (post.hashtags) {
+        for (const tag of post.hashtags) {
+          hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
+        }
+      }
+    }
+    
+    const sorted = Array.from(hashtagCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit ?? 20);
+    
+    return sorted.map(([tag, count]) => ({ tag, count }));
   },
 });

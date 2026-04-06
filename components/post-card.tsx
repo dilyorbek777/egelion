@@ -29,9 +29,37 @@ interface PostCardProps {
     likesCount: number;
     commentsCount: number;
     savesCount: number;
+    hashtags?: string[];
     authorId: Id<"users">;
     author?: { username: string; profileImage?: string | null; fullName: string } | null;
   };
+}
+
+function HashtagText({ content, onHashtagClick }: { content: string; onHashtagClick?: (tag: string) => void }) {
+  const parts = content.split(/(#\w+)/g);
+  
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("#")) {
+          const tag = part.slice(1);
+          return (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                onHashtagClick?.(tag);
+              }}
+              className="text-primary hover:underline font-medium"
+            >
+              {part}
+            </button>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
 }
 
 export function PostCard({ post }: PostCardProps) {
@@ -156,8 +184,11 @@ export function PostCard({ post }: PostCardProps) {
 
   const [optimisticComments, setOptimisticComments] = useState<any[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
   const router = useRouter();
+
+  const handleHashtagClick = (tag: string) => {
+    router.push(`/hashtag/${tag}`);
+  };
 
   const handlePostClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on interactive elements
@@ -320,7 +351,29 @@ export function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* Content */}
-      {post.content && <p className="text-sm">{post.content}</p>}
+      {post.content && (
+        <p className="text-sm">
+          <HashtagText content={post.content} onHashtagClick={handleHashtagClick} />
+        </p>
+      )}
+
+      {/* Hashtags */}
+      {post.hashtags && post.hashtags.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {post.hashtags.map((tag) => (
+            <button
+              key={tag}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleHashtagClick(tag);
+              }}
+              className="text-xs text-primary bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded-full transition-colors"
+            >
+              #{tag}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Media */}
       {post.mediaUrl && (
