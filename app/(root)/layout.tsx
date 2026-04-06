@@ -10,6 +10,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import ProfileGuard from "@/components/ProfileGuard";
 import { Toaster } from "@/components/ui/sonner";
 import { VideoProvider } from "@/components/video-context";
+import { LoadingTopBar } from "@/components/loading";
 import { cookies } from "next/headers";
 
 const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans', weight: ['400', '500', '600', '700'] });
@@ -57,6 +58,8 @@ export default async function RootLayout({
               <ConvexClientProvider>
                 <ProfileGuard>
                   <VideoProvider>
+                    <LoadingTopBar />
+
                     <Header />
                     <main className="scrollbar-hide py-16">{children}</main>
                     <BottomNav />

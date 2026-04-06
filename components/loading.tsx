@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { RotateCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface LoadingProps {
   className?: string;
@@ -258,6 +260,50 @@ export function CommentSkeleton() {
         <Skeleton className="h-4 w-full rounded-lg" />
         <Skeleton className="h-4 w-2/3 rounded-lg" />
       </div>
+    </div>
+  );
+}
+
+export function LoadingTopBar() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setIsLoading(true);
+    setProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 15;
+      });
+    }, 100);
+
+    const completeTimeout = setTimeout(() => {
+      setProgress(100);
+      setTimeout(() => setIsLoading(false), 200);
+    }, 300);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(completeTimeout);
+    };
+  }, [pathname, searchParams]);
+
+  if (!isLoading) return null;
+
+  return (
+    <div className="fixed top-16 left-0 right-0 z-50 h-1 bg-transparent">
+      <div
+        className="h-full bg-primary transition-all duration-200 ease-out"
+        style={{
+          width: `${Math.min(progress, 100)}%`,
+          transitionTimingFunction: progress >= 90 ? "ease-out" : "linear",
+        }}
+      />
+      <div className="absolute inset-0 bg-primary/20 blur-sm" />
     </div>
   );
 }
