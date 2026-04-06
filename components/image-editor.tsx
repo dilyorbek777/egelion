@@ -106,6 +106,12 @@ export function ImageEditor({
   const [scale, setScale] = useState(1);
   const [saving, setSaving] = useState(false);
 
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
+  const pendingAdjustmentsRef = useRef<ImageAdjustments | null>(null);
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const drawFrameRef = useRef<number | null>(null);
+  const pendingDrawRef = useRef(false);
+
   const initializeCanvas = useCallback((img: HTMLImageElement) => {
     const maxWidth = 500;
     const maxHeight = 400;
@@ -143,6 +149,66 @@ export function ImageEditor({
       URL.revokeObjectURL(img.src);
     };
   }, [imageFile, isOpen, initializeCanvas]);
+
+  // Optimized sharpen - skip if not needed or use smaller canvas
+  const applySharpen = useCallback((ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, sharpenValue: number) => {
+    if (sharpenValue <= 0) return;
+    
+    // Skip sharpen on very large images on mobile
+    const pixelCount = canvas.width * canvas.height;
+    const isLargeImage = pixelCount > 2000000; // ~2MP threshold
+    
+    if (isLargeImage && sharpenValue < 30) {
+      return; // Skip light sharpening on large images
+    }
+    
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const factor = sharpenValue / 100;
+    
+    // Unroll the loop slightly for better performance
+    const len = data.length;
+    for (let i = 0; i < len; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      data[i] = r + (r - 128) * factor;
+      data[i + 1] = g + (g - 128) * factor;
+      data[i + 2] = b + (b - 128) * factor;
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }, []);
+
+  // Throttled draw that batches multiple calls into one animation frame
+  const requestDraw = useCallback(() => {
+    if (drawFrameRef.current) return; // Already pending
+    
+    pendingDrawRef.current = true;
+    drawFrameRef.current = requestAnimationFrame(() => {
+      drawImage();
+      drawFrameRef.current = null;
+      pendingDrawRef.current = false;
+    });
+  }, []);
+
+  // Batch adjustment updates with throttling for mobile performance
+  const updateAdjustment = useCallback((key: keyof ImageAdjustments, value: number) => {
+    // Update UI immediately for responsiveness
+    setAdjustments(prev => ({ ...prev, [key]: value }));
+    
+    // Clear any pending timeout
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    
+    // Batch the draw call - delay to reduce canvas redraws during rapid slider movement
+    updateTimeoutRef.current = setTimeout(() => {
+      requestDraw();
+    }, isDraggingSlider ? 50 : 0); // Throttle during drag, immediate on release
+  }, [isDraggingSlider, requestDraw]);
+
+  const handleSliderPointerDown = useCallback(() => setIsDraggingSlider(true), []);
+  const handleSliderPointerUp = useCallback(() => setIsDraggingSlider(false), []);
 
   const drawImage = useCallback(() => {
     const canvas = canvasRef.current;
@@ -197,25 +263,29 @@ export function ImageEditor({
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Sharpen (Simple approximation)
-    if (adjustments.sharpen > 0) {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const factor = adjustments.sharpen / 100;
-      for (let i = 0; i < data.length; i += 4) {
-        data[i] = Math.min(255, data[i] + (data[i] - 128) * factor);
-        data[i + 1] = Math.min(255, data[i + 1] + (data[i + 1] - 128) * factor);
-        data[i + 2] = Math.min(255, data[i + 2] + (data[i + 2] - 128) * factor);
-      }
-      ctx.putImageData(imageData, 0, 0);
+    // Sharpen - only apply if enabled and not during rapid updates
+    if (!isDraggingSlider || adjustments.sharpen > 50) {
+      applySharpen(ctx, canvas, adjustments.sharpen);
     }
-  }, [crop, adjustments]);
+  }, [crop, adjustments, applySharpen, isDraggingSlider]);
 
   useEffect(() => {
     if (imageLoaded) {
       drawImage();
     }
   }, [drawImage, imageLoaded]);
+
+  // Cleanup on unmount or dialog close
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      if (drawFrameRef.current) {
+        cancelAnimationFrame(drawFrameRef.current);
+      }
+    };
+  }, []);
 
   const handleAspectRatioChange = (ratio: AspectRatio) => {
     setAspectRatio(ratio);
@@ -415,7 +485,9 @@ export function ImageEditor({
                           <Slider
                             value={[adjustments[ctrl.key]]}
                             min={ctrl.min} max={ctrl.max} step={ctrl.step}
-                            onValueChange={([v]) => setAdjustments(prev => ({ ...prev, [ctrl.key]: v }))}
+                            onValueChange={([v]) => updateAdjustment(ctrl.key, v)}
+                            onPointerDown={handleSliderPointerDown}
+                            onPointerUp={handleSliderPointerUp}
                           />
                         </div>
                       ))}
