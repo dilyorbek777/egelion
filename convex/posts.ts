@@ -264,3 +264,11 @@ export const getTrendingHashtags = query({
     return sorted.map(([tag, count]) => ({ tag, count }));
   },
 });
+
+export const getPostsCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const posts = await ctx.db.query("posts").collect();
+    return posts.length;
+  },
+});

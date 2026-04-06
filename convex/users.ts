@@ -273,3 +273,11 @@ export const deleteAccount = mutation({
   },
 });
 
+export const getUserCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    return users.length;
+  },
+});
+
