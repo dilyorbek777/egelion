@@ -4,8 +4,39 @@ import { PostCard } from "@/components/post-card";
 import { notFound } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
+interface PostPageProps {
+  params: Promise<{ postId: string }>;
+}
+
+export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+  const { postId } = await params;
+  const post = await convex.query(api.posts.getById, {
+    postId: postId as Id<"posts">,
+  });
+
+  if (!post) {
+    return {
+      title: "Post Not Found | Egelion",
+    };
+  }
+
+  const authorName = post.author?.username || "Unknown";
+  const contentPreview = post.content 
+    ? `${post.content.slice(0, 100)}${post.content.length > 100 ? "..." : ""}`
+    : "View this post on Egelion";
+
+  return {
+    title: `@${post.content || "Posts"} | Egelion`,
+    description: contentPreview,
+    openGraph: post.mediaUrl ? {
+      images: [post.mediaUrl],
+    } : undefined,
+  };
+}
 
 export default async function PostPage({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
