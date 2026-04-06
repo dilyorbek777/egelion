@@ -402,7 +402,7 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Content */}
       {post.content && (
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-3 ">
           <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
             <HashtagText content={post.content} onHashtagClick={handleHashtagClick} />
           </p>
@@ -429,7 +429,7 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* Media */}
       {post.mediaUrl && (
-        <div className="relative bg-muted" onClick={(e) => e.stopPropagation()}>
+        <div className="relative bg-muted border border-border/50" onClick={(e) => e.stopPropagation()}>
           {post.mediaType === "video" ? (
             <VideoPlayer src={post.mediaUrl} postId={post._id} />
           ) : (

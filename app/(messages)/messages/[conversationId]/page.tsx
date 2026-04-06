@@ -757,78 +757,76 @@ export default function ConversationPage() {
         </div>
 
         {/* Modern Input Area */}
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="border-t border-border/50 bg-background/80 backdrop-blur-xl p-4"
+          className="fixed left-0 right-0 bottom-0 z-50"
         >
-          <div className="max-w-3xl mx-auto w-full fixed left-1/2 -translate-x-1/2 bottom-18 space-y-3 max-sm:space-y-1">
-            <AnimatePresence>
-              {replyingTo && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0, y: 10 }}
-                  animate={{ opacity: 1, height: "auto", y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: 10 }}
-                  className="flex items-center gap-3 bg-muted/70 rounded-xl p-3"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground font-medium">
-                      Replying to <span className="text-foreground">{replyingTo.sender?.fullName ?? "Unknown"}</span>
-                    </p>
-                    <p className="text-sm text-foreground truncate">
-                      {replyingTo.content || (replyingTo.mediaType === "image" ? "📷 Photo" : "🎥 Video")}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-full shrink-0"
-                    onClick={() => setReplyingTo(null)}
+          <div className="border-t bg-background/90 backdrop-blur-md shadow-lg">
+            <div className="max-w-3xl max-md:mb-18 mx-auto px-4 py-3 space-y-3">
+              <AnimatePresence>
+                {replyingTo && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-3 bg-muted/50 rounded-lg p-2.5"
                   >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {pendingMedia && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex items-center gap-3 px-8"
-                >
-                  <div className="relative">
-                    {pendingMedia.type === "image" ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={pendingMedia.url}
-                        alt="Upload preview"
-                        className="h-24 w-24 object-cover rounded-xl border-2 border-primary/20"
-                      />
-                    ) : (
-                      <video
-                        src={pendingMedia.url}
-                        className="h-24 w-24 object-cover rounded-xl border-2 border-primary/20"
-                      />
-                    )}
-                    <button
-                      onClick={() => setPendingMedia(null)}
-                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1.5 shadow-lg hover:scale-110 transition-transform"
+                    <div className="flex-1 min-w-0 pl-2 border-l-2 border-primary">
+                      <p className="text-xs text-muted-foreground">
+                        Replying to <span className="text-foreground font-medium">{replyingTo.sender?.fullName ?? "Unknown"}</span>
+                      </p>
+                      <p className="text-sm text-foreground truncate">
+                        {replyingTo.content || (replyingTo.mediaType === "image" ? "📷 Photo" : "🎥 Video")}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 shrink-0"
+                      onClick={() => setReplyingTo(null)}
                     >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <span className="text-sm text-muted-foreground">Ready to send</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            <div className="flex items-end gap-2 px-3">
-              <div className="flex items-center gap-1">
-                
-                
+              <AnimatePresence>
+                {pendingMedia && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="relative">
+                      {pendingMedia.type === "image" ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={pendingMedia.url}
+                          alt="Upload preview"
+                          className="h-20 w-20 object-cover rounded-lg border border-border"
+                        />
+                      ) : (
+                        <video
+                          src={pendingMedia.url}
+                          className="h-20 w-20 object-cover rounded-lg border border-border"
+                        />
+                      )}
+                      <button
+                        onClick={() => setPendingMedia(null)}
+                        className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Ready to send</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="flex items-center gap-2">
                 <UploadButton<OurFileRouter, "messageMedia">
                   endpoint="messageMedia"
                   onClientUploadComplete={(res) => {
@@ -847,7 +845,7 @@ export default function ConversationPage() {
                   }}
                   onUploadBegin={() => setIsUploading(true)}
                   appearance={{
-                    button: "h-10 w-10 flex items-center justify-center rounded-full border-0 bg-transparent hover:bg-muted transition-colors",
+                    button: "h-10 w-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors",
                     allowedContent: "hidden",
                   }}
                   content={{
@@ -858,63 +856,63 @@ export default function ConversationPage() {
                     ),
                   }}
                 />
-              </div>
 
-              <div className="flex-1 relative">
-                <Input
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={isUploading}
-                  className="min-h-[44px] max-h-32 py-3 pr-12 rounded-full bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary/30 resize-none"
-                />
-                <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-muted"
-                    >
-                      <Smile className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-2" align="end">
-                    <div className="grid grid-cols-8 gap-1 max-h-[200px] overflow-y-auto">
-                      {emojis.map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={() => handleEmojiSelect(emoji)}
-                          className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded text-lg"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                <div className="flex-1 relative">
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isUploading}
+                    className="h-11 pr-11 rounded-full bg-muted border-0 focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                  <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-muted"
+                      >
+                        <Smile className="h-5 w-5 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-2" align="end">
+                      <div className="grid grid-cols-8 gap-1 max-h-[200px] overflow-y-auto">
+                        {emojis.map((emoji) => (
+                          <button
+                            key={emoji}
+                            onClick={() => handleEmojiSelect(emoji)}
+                            className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded text-lg"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-              <Button
-                onClick={handleSend}
-                disabled={isUploading || (!newMessage.trim() && !pendingMedia)}
-                size="icon"
-                className={cn(
-                  "h-11 w-11 rounded-full shrink-0 transition-all  flex items-center justify-center duration-200",
-                  (newMessage.trim() || pendingMedia)
-                    ? "bg-primary hover:bg-primary/90 scale-100"
-                    : "bg-primary/50 scale-95"
-                )}
-              >
-                {isUploading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Send className={cn(
-                    "h-5 w-5 transition-transform  duration-200",
-                    (newMessage.trim() || pendingMedia) && " rotate-12 transition-all duration-200"
-                  )} />
-                )}
-              </Button>
+                <Button
+                  onClick={handleSend}
+                  disabled={isUploading || (!newMessage.trim() && !pendingMedia)}
+                  size="icon"
+                  className={cn(
+                    "h-11 w-11 rounded-full shrink-0 transition-all duration-200",
+                    (newMessage.trim() || pendingMedia)
+                      ? "bg-primary hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className={cn(
+                      "h-5 w-5 transition-transform",
+                      (newMessage.trim() || pendingMedia) && "-rotate-45"
+                    )} />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
