@@ -23,9 +23,9 @@ export default function StoryUserPage({ params }: StoryUserPageProps) {
   }, [params]);
 
   const stories = useQuery(
-    api.stories.getStoriesByUser,
+    api.stories.getStoriesByUsername,
     clerkId && userId
-      ? { clerkId, targetUserId: userId as Id<"users"> }
+      ? { clerkId, username: userId }
       : "skip"
   );
 

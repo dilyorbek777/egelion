@@ -155,7 +155,7 @@ export function CreatePost() {
   const userInitials = user?.fullName?.[0] || "U";
 
   return (
-    <form onSubmit={handleSubmit} className="bg-background border rounded-2xl overflow-hidden shadow-xl/50 ">
+    <form onSubmit={handleSubmit} className="bg-background border rounded-2xl overflow-hidden shadow-sm ">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b bg-card/50">
         <Avatar size="sm">
