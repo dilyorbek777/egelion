@@ -1,8 +1,8 @@
 import { SignIn } from "@clerk/nextjs";
 import { CLERK_APPEARANCE } from "@/constants";
-import { Sparkles } from "lucide-react";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import Image from "next/image";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -17,13 +17,9 @@ export default async function SignInPage() {
           {/* Left panel - branding and content - HIDDEN ON MOBILE */}
           <div className="hidden lg:block flex-1 max-w-lg text-center lg:text-left space-y-8">
             {/* Logo and brand */}
-            <div className="space-y-4 flex items-center justify-start gap-3">
-              <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 shadow-lg shadow-primary/20 group-hover:shadow-primary/30 group-hover:scale-105 transition-all duration-300">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="hidden sm:flex text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent items-center justify-center">
-                Egelion
-              </span>
+            <div className="space-y-4 flex items-center justify-start gap-3 text-2xl font-bold">
+              
+              <Image src="/logo.png" alt="Egelion" width={40} height={40} /> Egelion
             </div>
 
             {/* Hero content */}

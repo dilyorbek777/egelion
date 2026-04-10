@@ -7,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { useUploadThing } from "@/lib/uploadthing";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, X, ImageIcon, Film, Globe, Users, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, X, ImageIcon, Film, Globe, Users, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -177,9 +177,7 @@ export function CreateStoryPageClient() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-full bg-primary">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
+          
           <h1 className="text-xl font-semibold">Create Story</h1>
         </div>
       </div>

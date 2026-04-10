@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, ImageIcon, Film, Globe, Users, Loader2, Sparkles } from "lucide-react";
+import { X, ImageIcon, Film, Globe, Users, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -176,9 +176,7 @@ export function CreateStory({ isOpen, onClose }: CreateStoryProps) {
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-2">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-full bg-primary">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+            
             <DialogTitle className="text-xl font-semibold">Create Story</DialogTitle>
           </div>
         </DialogHeader>

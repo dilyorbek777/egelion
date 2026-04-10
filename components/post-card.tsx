@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { VideoPlayer } from "./video-player";
+import CustomImage from "./custom-image";
 
 interface PostCardProps {
   post: {
@@ -433,10 +434,10 @@ export function PostCard({ post }: PostCardProps) {
           {post.mediaType === "video" ? (
             <VideoPlayer src={post.mediaUrl} postId={post._id} />
           ) : (
-            <img
-              src={post.mediaUrl}
+            <CustomImage
+              img={post.mediaUrl}
               alt=""
-              className="w-full max-h-[600px] object-cover"
+              className="w-full max-h-[600px]"
             />
           )}
         </div>
@@ -618,10 +619,10 @@ export function PostCard({ post }: PostCardProps) {
                 {editMediaType === "video" ? (
                   <video src={editMediaPreview} className="w-full max-h-64 object-cover" />
                 ) : (
-                  <img
-                    src={editMediaPreview}
+                  <CustomImage
+                    img={editMediaPreview}
                     alt=""
-                    className="w-full max-h-64 object-cover"
+                    className="w-full max-h-64"
                   />
                 )}
                 <button

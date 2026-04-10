@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { RotateCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface LoadingProps {
   className?: string;
@@ -211,17 +212,21 @@ export function PageLoading({ text = "Loading..." }: { text?: string }) {
       <div className="flex flex-col items-center gap-6">
         {/* Logo placeholder with gradient */}
         <div className="relative">
-          <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <LoadingSpinner size="lg" />
+          <div className="w-20 h-20 rounded-2xl bg-linear-to-br animate-png animate-bounce from-primary/20 to-primary/5 flex items-center justify-center">
+
+            <Image src="/logo.png" alt="Egelion" width={40} height={40} />
           </div>
           {/* Glow effect */}
           <div className="absolute inset-0 -z-10 blur-xl bg-primary/20 rounded-2xl animate-pulse" />
         </div>
-        
+
         <div className="text-center space-y-2">
           <p className="text-lg font-semibold text-foreground">{text}</p>
           <p className="text-sm text-muted-foreground">Please wait a moment</p>
         </div>
+
+        <LoadingSpinner size="lg" />
+
 
         <button
           onClick={() => window.location.reload()}

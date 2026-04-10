@@ -6,13 +6,14 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Notifications } from "@/components/notifications";
 import { Badge } from "@/components/ui/badge";
-import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon, Sparkles, Video, MessageCircle } from "lucide-react";
+import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon,  Video, MessageCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/loading";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export function Header() {
   const { user } = useUser();
@@ -40,7 +41,7 @@ export function Header() {
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
-    
+
     { href: "/videos", icon: Video, label: "Videos" },
     { href: "/messages", icon: MessageCircle, label: "Messages" },
     ...(dbUser ? [{ href: `/profile/${dbUser.username}`, icon: User, label: "Profile" }] : []),
@@ -64,12 +65,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 shadow-lg shadow-primary/20 group-hover:shadow-primary/30 group-hover:scale-105 transition-all duration-300">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Egelion
-            </span>
+            <Image src={'/logo.png'} alt="Egelion" width={40} height={40} />
           </Link>
 
           {/* Desktop Navigation */}
@@ -89,8 +85,8 @@ export function Header() {
                   <div className="relative">
                     <item.icon className={cn("w-4 h-4", isActive(item.href) && "stroke-[2.5]")} />
                     {item.label === "Messages" && unreadCount !== undefined && unreadCount > 0 && (
-                      <Badge 
-                        variant="default" 
+                      <Badge
+                        variant="default"
                         className="absolute -top-1.5 -right-2 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
                       >
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -123,7 +119,7 @@ export function Header() {
           <div className="flex items-center gap-1">
             {/* Theme Toggle */}
 
-            
+
             <Link href="/search">
               <Search className="text-sm h-[18px] w-[18px]  transition-all rotate-0 scale-100" />
             </Link>
@@ -190,8 +186,8 @@ export function Header() {
                   <div className="relative">
                     <item.icon className="w-5 h-5" />
                     {item.label === "Messages" && unreadCount !== undefined && unreadCount > 0 && (
-                      <Badge 
-                        variant="default" 
+                      <Badge
+                        variant="default"
                         className="absolute -top-1 -right-2 h-4 min-w-4 px-1 text-[10px] flex items-center justify-center"
                       >
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -222,8 +218,7 @@ export function Header() {
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="dark:hidden">Light</span>
-                <span className="hidden dark:inline">Dark</span>
+
               </Button>
             </div>
 
