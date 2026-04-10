@@ -482,7 +482,7 @@ export default function ConversationPage() {
         {/* Messages Area */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-4 py-18 space-y-6 max-w-3xl mx-auto w-full scroll-smooth"
+          className="flex-1 overflow-y-auto px-4 py-24 scrollbar-hide space-y-6 max-w-3xl mx-auto w-full scroll-smooth"
         >
           {messages.length === 0 && !messagesData ? (
             <div className="space-y-6">
@@ -830,7 +830,7 @@ export default function ConversationPage() {
                 )}
               </AnimatePresence>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <UploadButton<OurFileRouter, "messageMedia">
                   endpoint="messageMedia"
                   onClientUploadComplete={(res) => {
@@ -861,7 +861,7 @@ export default function ConversationPage() {
                   }}
                 />
 
-                <div className="flex-1 relative">
+                <div className="flex-1 w-3/4 relative">
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
