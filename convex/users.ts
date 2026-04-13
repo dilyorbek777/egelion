@@ -354,3 +354,42 @@ export const getUserCount = query({
   },
 });
 
+export const getRecommendedUsers = query({
+  args: { 
+    currentUserId: v.optional(v.id("users")),
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, { currentUserId, limit = 5 }) => {
+    // Get all users with complete profiles
+    const allUsers = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("isProfileComplete"), true))
+      .collect();
+
+    // Filter out current user if provided
+    const filteredUsers = currentUserId 
+      ? allUsers.filter(user => user._id !== currentUserId)
+      : allUsers;
+
+    // Get follow relationships to filter out already followed users
+    let alreadyFollowingIds: string[] = [];
+    if (currentUserId) {
+      const following = await ctx.db
+        .query("follows")
+        .withIndex("by_follower", (q) => q.eq("followerId", currentUserId))
+        .collect();
+      alreadyFollowingIds = following.map(f => f.followingId);
+    }
+
+    // Filter out already followed users
+    const notFollowingUsers = filteredUsers.filter(user => 
+      !alreadyFollowingIds.includes(user._id)
+    );
+
+    // Sort by creation time (newest first) and limit
+    return notFollowingUsers
+      .sort((a, b) => b._creationTime - a._creationTime)
+      .slice(0, limit);
+  },
+});
+

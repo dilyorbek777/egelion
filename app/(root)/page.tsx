@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { CreatePost } from "@/components/create-post";
 import { PostCard } from "@/components/post-card";
 import { StoryBar } from "@/components/story-bar";
+import { RecommendedUsers } from "@/components/recommended-users";
 import { PageLoading, PostCardSkeletonList } from "@/components/loading";
 
 export default function HomePage() {
@@ -54,18 +55,29 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto pb-8">
-      
-      <StoryBar />
-      <div className="px-4 py-4 space-y-4">
-        <CreatePost />
-        {posts === undefined ? (
-          <PostCardSkeletonList count={3} />
-        ) : (
-          posts.map((post) => <PostCard key={post._id} post={post} />)
-        )}
-        {isLoading && <PostCardSkeletonList count={2} />}
-        <div ref={loadMoreRef} className="h-4" />
+    <div className="max-w-7xl mx-auto pb-8 px-4">
+      <div className="flex gap-6">
+        {/* Main Content */}
+        <div className="flex-1 max-w-xl">
+          <StoryBar />
+          <div className="py-4 space-y-4">
+            <CreatePost />
+            {posts === undefined ? (
+              <PostCardSkeletonList count={3} />
+            ) : (
+              posts.map((post) => <PostCard key={post._id} post={post} />)
+            )}
+            {isLoading && <PostCardSkeletonList count={2} />}
+            <div ref={loadMoreRef} className="h-4" />
+          </div>
+        </div>
+        
+        {/* Right Sidebar */}
+        <div className="hidden lg:block w-80 flex-shrink-0">
+          <div className="sticky top-20">
+            <RecommendedUsers />
+          </div>
+        </div>
       </div>
     </div>
   );

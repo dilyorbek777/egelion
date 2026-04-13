@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
+import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { PostCard } from "@/components/post-card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Pencil, Save, X, Camera, MapPin, Calendar,
   Link as LinkIcon, Grid3X3, PlayCircle, Settings,
@@ -37,6 +39,8 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalView, setFollowModalView] = useState<"followers" | "following">("followers");
   const getOrCreateConversation = useMutation(api.messages.getOrCreateConversation);
   const router = useRouter();
 
@@ -67,6 +71,16 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
   const savedPosts = useQuery(
     api.interactions.getSavedPosts,
     user?.id && profileUser?.clerkId === user.id ? { clerkId: user.id } : "skip"
+  );
+
+  const followers = useQuery(
+    api.interactions.getFollowers,
+    profileUser?._id && isFollowModalOpen && followModalView === "followers" ? { userId: profileUser._id } : "skip"
+  );
+
+  const following = useQuery(
+    api.interactions.getFollowing,
+    profileUser?._id && isFollowModalOpen && followModalView === "following" ? { userId: profileUser._id } : "skip"
   );
 
   // ── Loading ────────────────────────────────────────────
@@ -235,6 +249,28 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
     }
   };
 
+  const handleFollowersClick = () => {
+    setFollowModalView("followers");
+    setIsFollowModalOpen(true);
+  };
+
+  const handleFollowingClick = () => {
+    setFollowModalView("following");
+    setIsFollowModalOpen(true);
+  };
+
+  const handleUnfollow = async (targetUserId: Id<"users">) => {
+    if (!user?.id) return;
+    try {
+      await toggleFollow({
+        clerkId: user.id,
+        targetUserId,
+      });
+    } catch (err) {
+      console.error("Failed to unfollow:", err);
+    }
+  };
+
   // ── Render ─────────────────────────────────────────────
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
@@ -354,12 +390,18 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
             {/* Stats */}
             <div className="flex gap-6 text-sm">
               {[
-                { label: "Posts", value: totalPosts },
-                { label: "Followers", value: followersCount },
-                { label: "Following", value: followingCount },
-              ].map(({ label, value }) => (
-                <div key={label} className="text-center">
-                  <div className="font-semibold text-lg">{value}</div>
+                { label: "Posts", value: totalPosts, onClick: undefined },
+                { label: "Followers", value: followersCount, onClick: handleFollowersClick },
+                { label: "Following", value: followingCount, onClick: handleFollowingClick },
+              ].map(({ label, value, onClick }) => (
+                <div 
+                  key={label} 
+                  className="text-center"
+                  onClick={onClick}
+                >
+                  <div className={`font-semibold text-lg ${onClick ? "cursor-pointer hover:text-primary transition-colors" : ""}`}>
+                    {value}
+                  </div>
                   <div className="text-muted-foreground">{label}</div>
                 </div>
               ))}
@@ -557,6 +599,127 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
         defaultAspectRatio="1:1"
         allowAspectRatioChange={true}
       />
+
+      {/* Followers/Following Modal */}
+      <Dialog open={isFollowModalOpen} onOpenChange={setIsFollowModalOpen}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>
+              {followModalView === "followers" ? "Followers" : "Following"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto">
+            {followModalView === "followers" ? (
+              followers === undefined ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg animate-pulse">
+                      <div className="w-10 h-10 rounded-full bg-muted" />
+                      <div className="flex-1">
+                        <div className="h-4 w-24 bg-muted rounded mb-2" />
+                        <div className="h-3 w-32 bg-muted rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : followers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No followers yet
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {followers.map((follower) => (
+                    follower && (
+                      <Link
+                        key={follower._id}
+                        href={`/profile/${follower.username}`}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                        onClick={() => setIsFollowModalOpen(false)}
+                      >
+                        {follower.profileImage ? (
+                          <img
+                            src={follower.profileImage}
+                            alt={follower.fullName}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                            {follower.fullName[0]}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">{follower.fullName}</div>
+                          <div className="text-muted-foreground text-sm truncate">@{follower.username}</div>
+                        </div>
+                      </Link>
+                    )
+                  ))}
+                </div>
+              )
+            ) : (
+              following === undefined ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg animate-pulse">
+                      <div className="w-10 h-10 rounded-full bg-muted" />
+                      <div className="flex-1">
+                        <div className="h-4 w-24 bg-muted rounded mb-2" />
+                        <div className="h-3 w-32 bg-muted rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : following.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Not following anyone yet
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {following.map((followingUser) => (
+                    followingUser && (
+                      <div key={followingUser._id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <Link
+                          href={`/profile/${followingUser.username}`}
+                          className="flex items-center gap-3 flex-1"
+                          onClick={() => setIsFollowModalOpen(false)}
+                        >
+                          {followingUser.profileImage ? (
+                            <img
+                              src={followingUser.profileImage}
+                              alt={followingUser.fullName}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                              {followingUser.fullName[0]}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">{followingUser.fullName}</div>
+                            <div className="text-muted-foreground text-sm truncate">@{followingUser.username}</div>
+                          </div>
+                        </Link>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUnfollow(followingUser._id);
+                          }}
+                          className="shrink-0"
+                        >
+                          <UserCheck className="w-3 h-3 mr-1" />
+                          Following
+                        </Button>
+                      </div>
+                    )
+                  ))}
+                </div>
+              )
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
