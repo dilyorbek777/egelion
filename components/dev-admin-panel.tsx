@@ -2,9 +2,8 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Calendar, MessageSquare, UserPlus, Heart } from "lucide-react";
+import { Loader2, Users, Calendar, MessageSquare, UserPlus, Heart, Shield, ShieldOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export function DevAdminPanel() {
@@ -42,87 +41,115 @@ export function DevAdminPanel() {
         </Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {users.map((user) => (
-          <Card key={user._id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage 
-                    src={user.profileImage || undefined} 
-                    alt={user.fullName}
-                  />
-                  <AvatarFallback>
-                    {user.fullName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <CardTitle className="text-sm font-medium truncate">
-                    {user.fullName || "Unknown User"}
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground truncate">
-                    @{user.username || "no-username"}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-3">
-              <div className="flex items-center text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3 mr-1" />
-                <span>
-                  {formatDistanceToNow(user.createdAt, { addSuffix: true })}
-                </span>
-              </div>
-              
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center text-muted-foreground">
-                    <MessageSquare className="h-3 w-3 mr-1" />
-                    <span>{user.postsCount}</span>
-                  </div>
-                  <div className="flex items-center text-muted-foreground">
-                    <Users className="h-3 w-3 mr-1" />
-                    <span>{user.followersCount}</span>
-                  </div>
-                  <div className="flex items-center text-muted-foreground">
-                    <UserPlus className="h-3 w-3 mr-1" />
-                    <span>{user.followingCount}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {user.bio && (
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {user.bio}
-                </p>
-              )}
-              
-              <div className="flex flex-wrap gap-1">
-                {user.isProfileComplete ? (
-                  <Badge variant="default" className="text-xs">
-                    Complete
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-xs">
-                    Incomplete
-                  </Badge>
-                )}
-                
-                {user.location && (
-                  <Badge variant="secondary" className="text-xs">
-                    {user.location}
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-muted/50">
+              <tr className="border-b">
+                <th className="text-left p-4 font-medium">User</th>
+                <th className="text-left p-4 font-medium">Created</th>
+                <th className="text-left p-4 font-medium">Posts</th>
+                <th className="text-left p-4 font-medium">Followers</th>
+                <th className="text-left p-4 font-medium">Following</th>
+                <th className="text-left p-4 font-medium">Status</th>
+                <th className="text-left p-4 font-medium">Location</th>
+                <th className="text-left p-4 font-medium">Admin</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user, index) => (
+                <tr key={user._id} className={`border-b ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
+                  <td className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage 
+                          src={user.profileImage || undefined} 
+                          alt={user.fullName}
+                        />
+                        <AvatarFallback>
+                          {user.fullName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">
+                          {user.fullName || "Unknown User"}
+                        </div>
+                        <div className="text-sm text-muted-foreground truncate">
+                          @{user.username || "no-username"}
+                        </div>
+                        {user.bio && (
+                          <div className="text-xs text-muted-foreground line-clamp-1 mt-1">
+                            {user.bio}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {formatDistanceToNow(user.createdAt, { addSuffix: true })}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center text-sm">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      {user.postsCount}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center text-sm">
+                      <Users className="h-3 w-3 mr-1" />
+                      {user.followersCount}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center text-sm">
+                      <UserPlus className="h-3 w-3 mr-1" />
+                      {user.followingCount}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    {user.isProfileComplete ? (
+                      <Badge variant="default" className="text-xs">
+                        Complete
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">
+                        Incomplete
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <div className="text-sm text-muted-foreground">
+                      {user.location || "-"}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center">
+                      {user.isAdmin ? (
+                        <div className="flex items-center text-green-600">
+                          <Shield className="h-4 w-4 mr-1" />
+                          <span className="text-sm">Yes</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center text-muted-foreground">
+                          <ShieldOff className="h-4 w-4 mr-1" />
+                          <span className="text-sm">No</span>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
