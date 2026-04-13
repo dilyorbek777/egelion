@@ -265,6 +265,30 @@ export const getTrendingHashtags = query({
   },
 });
 
+export const getAllPosts = query({
+  args: {},
+  handler: async (ctx) => {
+    const posts = await ctx.db.query("posts").collect();
+    
+    // Get author information for each post
+    const postsWithAuthors = await Promise.all(
+      posts.map(async (post) => {
+        const author = await ctx.db.get(post.authorId);
+        
+        return {
+          ...post,
+          author,
+          createdAt: post._creationTime,
+        };
+      })
+    );
+
+    // Sort by creation time (newest first) - include all posts
+    return postsWithAuthors
+      .sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
 export const getPostsCount = query({
   args: {},
   handler: async (ctx) => {
