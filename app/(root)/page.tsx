@@ -55,10 +55,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto pb-8 px-4">
-      <div className="flex gap-6">
+    <div className="max-w-6xl mx-auto pb-8 px-4">
+      <div className="flex justify-center gap-8">
         {/* Main Content */}
-        <div className="flex-1 max-w-xl">
+        <div className="flex-1 max-w-2xl">
           <StoryBar />
           <div className="py-4 space-y-4">
             <CreatePost />
@@ -73,7 +73,7 @@ export default function HomePage() {
         </div>
         
         {/* Right Sidebar */}
-        <div className="hidden lg:block w-80 flex-shrink-0">
+        <div className="hidden xl:block w-80 flex-shrink-0">
           <div className="sticky top-20">
             <RecommendedUsers />
           </div>
