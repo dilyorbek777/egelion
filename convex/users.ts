@@ -386,10 +386,15 @@ export const getRecommendedUsers = query({
       !alreadyFollowingIds.includes(user._id)
     );
 
-    // Sort by creation time (newest first) and limit
-    return notFollowingUsers
-      .sort((a, b) => b._creationTime - a._creationTime)
-      .slice(0, limit);
+    // Shuffle array using Fisher-Yates algorithm for true randomization
+    const shuffled = [...notFollowingUsers];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Return randomized results with limit
+    return shuffled.slice(0, limit);
   },
 });
 

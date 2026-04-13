@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 import { CreatePost } from "@/components/create-post";
 import { PostCard } from "@/components/post-card";
 import { StoryBar } from "@/components/story-bar";
-import { RecommendedUsers } from "@/components/recommended-users";
+import { RecommendedUsers, RecommendedUsersMobile } from "@/components/recommended-users";
 import { PageLoading, PostCardSkeletonList } from "@/components/loading";
 
 export default function HomePage() {
@@ -60,6 +60,7 @@ export default function HomePage() {
         {/* Main Content */}
         <div className="flex-1 max-w-2xl">
           <StoryBar />
+          <RecommendedUsersMobile />
           <div className="py-4 space-y-4">
             <CreatePost />
             {posts === undefined ? (
