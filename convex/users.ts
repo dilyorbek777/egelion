@@ -14,6 +14,7 @@ export const upsertFromClerk = mutation({
         username: "",
         fullName: "",
         isProfileComplete: false,
+        isAdmin: false,
       });
     }
   },
@@ -39,6 +40,7 @@ export const completeProfile = mutation({
         username: "",
         fullName: "",
         isProfileComplete: false,
+        isAdmin: false,
       });
       user = await ctx.db.get(userId);
     }
@@ -270,6 +272,77 @@ export const deleteAccount = mutation({
     await ctx.db.delete(userId);
 
     return { success: true };
+  },
+});
+
+export const getAllUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    
+    // Get posts counts for each user
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const posts = await ctx.db
+          .query("posts")
+          .withIndex("by_author", (q) => q.eq("authorId", user._id))
+          .collect();
+        
+        const followers = await ctx.db
+          .query("follows")
+          .withIndex("by_following", (q) => q.eq("followingId", user._id))
+          .collect();
+        
+        const following = await ctx.db
+          .query("follows")
+          .withIndex("by_follower", (q) => q.eq("followerId", user._id))
+          .collect();
+
+        return {
+          ...user,
+          createdAt: user._creationTime,
+          postsCount: posts.length,
+          followersCount: followers.length,
+          followingCount: following.length,
+        };
+      })
+    );
+
+    // Sort by creation time (newest first)
+    return usersWithStats.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const migrateAdminField = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    
+    for (const user of users) {
+      if (user.isAdmin === undefined) {
+        await ctx.db.patch(user._id, { isAdmin: false });
+      }
+    }
+    
+    return { migrated: users.length };
+  },
+});
+
+export const setAdminStatus = mutation({
+  args: {
+    clerkId: v.string(),
+    isAdmin: v.boolean(),
+  },
+  handler: async (ctx, { clerkId, isAdmin }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, { isAdmin });
+    return await ctx.db.get(user._id);
   },
 });
 

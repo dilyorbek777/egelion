@@ -11,6 +11,7 @@ export default defineSchema({
     location: v.optional(v.string()),
     website: v.optional(v.string()),
     isProfileComplete: v.boolean(),
+    isAdmin: v.optional(v.boolean()),
     lastSeenAt: v.optional(v.number()),
   })
     .index("by_clerk_id", ["clerkId"])
