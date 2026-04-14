@@ -14,12 +14,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Pencil, Save, X, Camera, MapPin, Calendar,
   Link as LinkIcon, Grid3X3, PlayCircle, Settings,
-  UserPlus, UserCheck, Bookmark,
+  UserPlus, UserCheck, Bookmark, Heart,
 } from "lucide-react";
 import { MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
 import Link from "next/link";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Separator } from "@/components/ui/separator";
 
 interface ProfilePageClientProps {
   username: string;
@@ -331,15 +333,24 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
                     </>
                   ) : (
                     <>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href="/settings">
-                          <Settings className="w-4 h-4" />
-                        </Link>
-                      </Button>
+
+                      <ButtonGroup>
+                        <Button variant="outline" className="border-gray-300" size="sm" asChild>
+                          <Link href="/settings">
+                            <Settings className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                        <Separator orientation="vertical" />
+                        <Button variant="outline" className="hover:border-red-600 hover:bg-red-100 hover:text-red-600" size="sm" asChild>
+                          <Link href="/myinteractions">
+                            <Heart className="w-4 h-4 mr-1" />
+                          </Link>
+                        </Button>
+                      </ButtonGroup>
                       <Button variant="outline" size="sm" onClick={handleEditProfile}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit profile
                       </Button>
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="default" size="sm" asChild>
                         <Link href="/messages">
                           <MessageSquare className="w-4 h-4 mr-1" /> See messages
                         </Link>

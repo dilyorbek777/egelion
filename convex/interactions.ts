@@ -63,59 +63,7 @@ export const isLiked = query({
   },
 });
 
-// ── Saves ──────────────────────────────────────────────
-export const toggleSave = mutation({
-  args: { clerkId: v.string(), postId: v.id("posts") },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first();
-    if (!user) throw new Error("User not found");
-
-    const existing = await ctx.db
-      .query("saves")
-      .withIndex("by_user_post", (q) =>
-        q.eq("userId", user._id).eq("postId", args.postId)
-      )
-      .first();
-
-    const post = await ctx.db.get(args.postId);
-    if (!post) throw new Error("Post not found");
-
-    if (existing) {
-      await ctx.db.delete(existing._id);
-      await ctx.db.patch(args.postId, { savesCount: Math.max(0, post.savesCount - 1) });
-      return false;
-    } else {
-      await ctx.db.insert("saves", { userId: user._id, postId: args.postId });
-      await ctx.db.patch(args.postId, { savesCount: post.savesCount + 1 });
-      return true;
-    }
-  },
-});
-
-export const isSaved = query({
-  args: { clerkId: v.string(), postId: v.id("posts") },
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first();
-    if (!user) return false;
-    
-    const save = await ctx.db
-      .query("saves")
-      .withIndex("by_user_post", (q) =>
-        q.eq("userId", user._id).eq("postId", args.postId)
-      )
-      .first();
-    
-    return !!save;
-  },
-});
-
-export const getSavedPosts = query({
+export const getLikedPosts = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -124,15 +72,15 @@ export const getSavedPosts = query({
       .first();
     if (!user) return [];
 
-    const saves = await ctx.db
-      .query("saves")
+    const likes = await ctx.db
+      .query("likes")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect();
 
     return Promise.all(
-      saves.map(async (save) => {
-        const post = await ctx.db.get(save.postId);
+      likes.map(async (like) => {
+        const post = await ctx.db.get(like.postId);
         if (!post) return null;
         const author = await ctx.db.get(post.authorId);
         return { ...post, author };
@@ -283,7 +231,7 @@ export const getFollowers = query({
     
     return Promise.all(
       follows.map(async (f) => await ctx.db.get(f.followerId))
-    );
+    ).then((users) => users.filter((u): u is NonNullable<typeof u> => u !== null));
   },
 });
 
@@ -297,9 +245,10 @@ export const getFollowing = query({
     
     return Promise.all(
       follows.map(async (f) => await ctx.db.get(f.followingId))
-    );
+    ).then((users) => users.filter((u): u is NonNullable<typeof u> => u !== null));
   },
 });
+
 export const getNotifications = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {
@@ -365,6 +314,93 @@ export const markAllNotificationsRead = mutation({
     );
     
     return unreadNotifications.length;
+  },
+});
+
+export const toggleSave = mutation({
+  args: { clerkId: v.string(), postId: v.id("posts") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+    if (!user) throw new Error("User not found");
+
+    const existing = await ctx.db
+      .query("saves")
+      .withIndex("by_user_post", (q) =>
+        q.eq("userId", user._id).eq("postId", args.postId)
+      )
+      .first();
+
+    const post = await ctx.db.get(args.postId);
+    if (!post) throw new Error("Post not found");
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+      await ctx.db.patch(args.postId, { savesCount: Math.max(0, post.savesCount - 1) });
+      return false;
+    } else {
+      await ctx.db.insert("saves", { userId: user._id, postId: args.postId });
+      await ctx.db.patch(args.postId, { savesCount: post.savesCount + 1 });
+      
+      // Create notification for post author (if not saving own post)
+      if (post.authorId !== user._id) {
+        await ctx.db.insert("notifications", {
+          userId: post.authorId,
+          type: "save",
+          actorId: user._id,
+          postId: args.postId,
+          read: false,
+        });
+      }
+      
+      return true;
+    }
+  },
+});
+
+export const isSaved = query({
+  args: { clerkId: v.string(), postId: v.id("posts") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+    if (!user) return false;
+    const save = await ctx.db
+      .query("saves")
+      .withIndex("by_user_post", (q) =>
+        q.eq("userId", user._id).eq("postId", args.postId)
+      )
+      .first();
+    return !!save;
+  },
+});
+
+export const getSavedPosts = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+    if (!user) return [];
+
+    const saves = await ctx.db
+      .query("saves")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .collect();
+
+    return Promise.all(
+      saves.map(async (save) => {
+        const post = await ctx.db.get(save.postId);
+        if (!post) return null;
+        const author = await ctx.db.get(post.authorId);
+        return { ...post, author };
+      })
+    ).then((posts) => posts.filter((p): p is NonNullable<typeof p> => p !== null));
   },
 });
 

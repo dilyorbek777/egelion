@@ -341,7 +341,7 @@ export function PostCard({ post }: PostCardProps) {
                 )}
               </div>
             </div>
-           
+
           </Link>
 
           {/* Author info */}
@@ -451,7 +451,7 @@ export function PostCard({ post }: PostCardProps) {
               variant="ghost"
               size="icon"
               className={cn(
-                "h-9 w-9 rounded-full transition-all duration-200",
+                "h-9 w-9 rounded-full transition-all duration-200 flex items-center gap-1",
                 liked
                   ? "text-red-500 hover:text-red-600 hover:bg-red-50"
                   : "text-foreground hover:text-red-500 hover:bg-red-50"
@@ -464,13 +464,14 @@ export function PostCard({ post }: PostCardProps) {
                   liked && "fill-current scale-110"
                 )}
               />
+              {formatCount(displayLikes)}
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "h-9 w-9 rounded-full transition-all duration-200",
+                "h-9 w-9 rounded-full transition-all duration-200 flex items-center gap-1",
                 showComments
                   ? "text-primary hover:bg-primary/10"
                   : "text-foreground hover:text-primary hover:bg-primary/10"
@@ -478,6 +479,7 @@ export function PostCard({ post }: PostCardProps) {
               onClick={() => setShowComments(!showComments)}
             >
               <MessageCircle className="w-5 h-5" />
+              {formatCount(post.commentsCount)}
             </Button>
 
             <Button
@@ -494,7 +496,7 @@ export function PostCard({ post }: PostCardProps) {
             variant="ghost"
             size="icon"
             className={cn(
-              "h-9 w-9 rounded-full transition-all duration-200",
+              "h-9 w-9 rounded-full transition-all duration-200 flex items-center gap-1",
               saved
                 ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
                 : "text-foreground hover:text-yellow-500 hover:bg-yellow-50"
@@ -507,26 +509,12 @@ export function PostCard({ post }: PostCardProps) {
                 saved && "fill-current"
               )}
             />
+            <span className="text-muted-foreground">{formatCount(displaySaves)}</span>
+
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 mt-2 text-sm">
-          {displayLikes > 0 && (
-            <span className="font-semibold">{formatCount(displayLikes)} likes</span>
-          )}
-          {post.commentsCount > 0 && !showComments && (
-            <button
-              onClick={() => setShowComments(true)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              View {formatCount(post.commentsCount)} comments
-            </button>
-          )}
-          {saved && displaySaves > 0 && (
-            <span className="text-muted-foreground">{formatCount(displaySaves)} saves</span>
-          )}
-        </div>
+       
       </div>
 
       {/* Comments */}
