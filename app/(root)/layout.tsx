@@ -7,6 +7,7 @@ import { ConvexClientProvider } from "@/components/convex-client-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "@/components/header";
 import { BottomNav } from "@/components/bottom-nav";
+import { Breadcrumb } from "@/components/breadcrumb";
 import ProfileGuard from "@/components/ProfileGuard";
 import { Toaster } from "@/components/ui/sonner";
 import { VideoProvider } from "@/components/video-context";
@@ -80,6 +81,9 @@ export default async function RootLayout({
                     <LoadingTopBar />
 
                     <Header />
+                    <div className="px-4 py-2 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+                      <Breadcrumb />
+                    </div>
                     <main className="scrollbar-hide py-16">{children}</main>
                     <BottomNav />
                     <Toaster />

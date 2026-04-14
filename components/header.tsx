@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Notifications } from "@/components/notifications";
 import { Badge } from "@/components/ui/badge";
-import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon,  Video, MessageCircle } from "lucide-react";
+import { Home, User, LogOut, Search, Menu, Plus, Sun, Moon, Video, MessageCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/loading";
@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { Breadcrumb } from "./breadcrumb";
 
 export function Header() {
   const { user } = useUser();
@@ -163,7 +164,7 @@ export function Header() {
           </div>
         </div>
       </div>
-
+      
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t bg-background/95 backdrop-blur-xl">

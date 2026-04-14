@@ -4,6 +4,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { FontProvider, FontFamily } from "@/components/font-provider";
 import { Noto_Sans, Outfit, Roboto_Slab, JetBrains_Mono, Inter } from "next/font/google";
 import { cookies } from "next/headers";
+import { Header } from "@/components/header";
+import { BottomNav } from "@/components/bottom-nav";
+import { Breadcrumb } from "@/components/breadcrumb";
+import ProfileGuard from "@/components/ProfileGuard";
+import { Toaster } from "@/components/ui/sonner";
+import { VideoProvider } from "@/components/video-context";
 import "../globals.css";
 
 const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans', weight: ['400', '500', '600', '700'] });
@@ -42,7 +48,15 @@ export default async function ProfileLayout({
           >
             <FontProvider initialFont={activeFont}>
               <ConvexClientProvider>
-                {children}
+                <ProfileGuard>
+                  <VideoProvider>
+                    <Header />
+                    
+                    <main className="scrollbar-hide py-16">{children}</main>
+                    <BottomNav />
+                    <Toaster />
+                  </VideoProvider>
+                </ProfileGuard>
               </ConvexClientProvider>
             </FontProvider>
           </ThemeProvider>

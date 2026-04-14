@@ -155,8 +155,15 @@ export function RecommendedUsers() {
             </div>
             <CardTitle className="text-lg font-semibold">Discover People</CardTitle>
           </div>
-          <div className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-            {recommendedUsers?.length || 0}
+          <div className="flex items-center gap-2">
+            {recommendedUsers && recommendedUsers.length > 0 && (
+              <Link href="/recommended/users">
+                <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary">
+                  See All
+                </Button>
+              </Link>
+            )}
+            
           </div>
         </div>
       </CardHeader>
@@ -217,11 +224,18 @@ export function RecommendedUsersMobile() {
                 <Users className="h-5 w-5 text-primary" />
               </div>
               <span className="text-lg font-semibold">Discover People</span>
-              {recommendedUsers && recommendedUsers.length > 0 && (
-                <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full ml-auto mr-4">
-                  {recommendedUsers.length}
-                </span>
-              )}
+              <div className="flex items-center gap-2 ml-auto mr-4">
+                {recommendedUsers && recommendedUsers.length > 0 && (
+                  <Link 
+                    href="/recommended/users" 
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-xs text-primary hover:text-primary h-6 px-2 flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    See All
+                  </Link>
+                )}
+                
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-0">

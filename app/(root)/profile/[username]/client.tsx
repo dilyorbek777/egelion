@@ -212,9 +212,9 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
-    
+
     setIsUploadingImage(true);
-    
+
     try {
       const res = await startUpload([file]);
       if (res?.[0]?.url) {
@@ -331,13 +331,13 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
                     </>
                   ) : (
                     <>
-                      <Button variant="outline" size="sm" onClick={handleEditProfile}>
-                        <Pencil className="w-4 h-4 mr-1" /> Edit profile
-                      </Button>
                       <Button variant="ghost" size="sm" asChild>
                         <Link href="/settings">
                           <Settings className="w-4 h-4" />
                         </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={handleEditProfile}>
+                        <Pencil className="w-4 h-4 mr-1" /> Edit profile
                       </Button>
                       <Button variant="outline" size="sm" asChild>
                         <Link href="/messages">
@@ -372,7 +372,7 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
                 </div>
               )}
 
-              
+
             </div>
 
             {/* Stats */}
@@ -382,8 +382,8 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
                 { label: "Followers", value: followersCount, onClick: handleFollowersClick },
                 { label: "Following", value: followingCount, onClick: handleFollowingClick },
               ].map(({ label, value, onClick }) => (
-                <div 
-                  key={label} 
+                <div
+                  key={label}
                   className="text-center"
                   onClick={onClick}
                 >
