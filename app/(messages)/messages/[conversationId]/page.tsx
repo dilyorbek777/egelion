@@ -831,7 +831,8 @@ export default function ConversationPage() {
               </AnimatePresence>
 
               <div className="flex items-center justify-between gap-2">
-                <UploadButton<OurFileRouter, "messageMedia">
+               <div className="w-8 h-8 flex items-center justify-center">
+                 <UploadButton<OurFileRouter, "messageMedia">
                   endpoint="messageMedia"
                   onClientUploadComplete={(res) => {
                     if (res?.[0]) {
@@ -849,7 +850,7 @@ export default function ConversationPage() {
                   }}
                   onUploadBegin={() => setIsUploading(true)}
                   appearance={{
-                    button: "h-10 w-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors",
+                    button: "h-10 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors",
                     allowedContent: "hidden",
                   }}
                   content={{
@@ -860,8 +861,9 @@ export default function ConversationPage() {
                     ),
                   }}
                 />
+               </div>
 
-                <div className="flex-1 w-3/4 relative">
+                <div className="flex-1 relative">
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
