@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { StoryViewer } from "@/components/story-viewer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ChevronLeft } from "lucide-react";
 
 interface StoryUserModalProps {
   params: Promise<{ userId: string }>;
@@ -46,7 +47,15 @@ export default function StoryUserModal({ params }: StoryUserModalProps) {
   if (filteredStories.length === 0) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="text-white">No stories available</div>
+        <div className="text-center flex  items-center gap-2 flex-col" >
+          <div className="text-white mb-4">No stories available</div>
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 bg-white text-black flex  items-center gap-2 rounded-lg hover:bg-gray-200 transition-colors"
+          ><ChevronLeft className="w-4 h-4" />
+            Back
+          </button>
+        </div>
       </div>
     );
   }
