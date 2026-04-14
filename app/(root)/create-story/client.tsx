@@ -11,7 +11,6 @@ import { ArrowLeft, X, ImageIcon, Film, Globe, Users, Loader2 } from "lucide-rea
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { ImageEditor } from "@/components/image-editor";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -50,7 +49,6 @@ export function CreateStoryPageClient() {
   const [privacy, setPrivacy] = useState<"everyone" | "followers">("followers");
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
 
   const handleFileChange = (file: File | null) => {
     if (!file) return;
@@ -66,16 +64,10 @@ export function CreateStoryPageClient() {
       setMediaPreview(URL.createObjectURL(file));
     } else {
       setMediaFile(file);
-      setIsImageEditorOpen(true);
+      setMediaPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleImageEditorSave = (editedFile: File) => {
-    setIsImageEditorOpen(false);
-    setMediaFile(editedFile);
-    setMediaPreview(URL.createObjectURL(editedFile));
-    setUploadComplete(false);
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -397,21 +389,6 @@ export function CreateStoryPageClient() {
         </div>
       </form>
 
-      {/* Image Editor Modal */}
-      <ImageEditor
-        isOpen={isImageEditorOpen}
-        onClose={() => {
-          setIsImageEditorOpen(false);
-          if (!mediaPreview) {
-            setMediaFile(null);
-          }
-        }}
-        imageFile={mediaFile}
-        onSave={handleImageEditorSave}
-        title="Edit Story Image"
-        defaultAspectRatio="9:16"
-        allowAspectRatioChange={true}
-      />
     </div>
   );
 }

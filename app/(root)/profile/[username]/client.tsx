@@ -20,7 +20,6 @@ import { MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
 import Link from "next/link";
-import { ImageEditor } from "@/components/image-editor";
 
 interface ProfilePageClientProps {
   username: string;
@@ -37,8 +36,6 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
   const [editUsername, setEditUsername] = useState("");
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
-  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
   const [followModalView, setFollowModalView] = useState<"followers" | "following">("followers");
   const getOrCreateConversation = useMutation(api.messages.getOrCreateConversation);
@@ -216,19 +213,10 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
     
-    // Open image editor for cropping and adjustments
-    setPendingImageFile(file);
-    setIsImageEditorOpen(true);
-  };
-
-  const handleImageEditorSave = async (editedFile: File) => {
-    if (!user?.id) return;
-    
-    setIsImageEditorOpen(false);
     setIsUploadingImage(true);
     
     try {
-      const res = await startUpload([editedFile]);
+      const res = await startUpload([file]);
       if (res?.[0]?.url) {
         await updateProfile({ clerkId: user.id, profileImage: res[0].url });
       }
@@ -236,9 +224,9 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
       console.error("Failed to upload image:", err);
     } finally {
       setIsUploadingImage(false);
-      setPendingImageFile(null);
     }
   };
+
 
   const handleRemoveImage = async () => {
     if (!user?.id || !profileUser?.profileImage) return;
@@ -587,18 +575,6 @@ export function ProfilePageClient({ username }: ProfilePageClientProps) {
         )}
       </Tabs>
 
-      <ImageEditor
-        isOpen={isImageEditorOpen}
-        onClose={() => {
-          setIsImageEditorOpen(false);
-          setPendingImageFile(null);
-        }}
-        imageFile={pendingImageFile}
-        onSave={handleImageEditorSave}
-        title="Edit Profile Picture"
-        defaultAspectRatio="1:1"
-        allowAspectRatioChange={true}
-      />
 
       {/* Followers/Following Modal */}
       <Dialog open={isFollowModalOpen} onOpenChange={setIsFollowModalOpen}>
