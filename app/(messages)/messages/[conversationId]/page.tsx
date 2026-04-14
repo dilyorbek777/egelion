@@ -433,9 +433,9 @@ export default function ConversationPage() {
                     })()}
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground leading-tight">
+                    <Link href={`/profile/${otherParticipant.username}`} className="font-semibold text-foreground leading-tight">
                       {otherParticipant.fullName}
-                    </p>
+                    </Link>
                     {(() => {
                       const { text, isOnline } = getOnlineStatus(otherParticipant.lastSeenAt);
                       const isTyping = typingStatus?.isTyping;
