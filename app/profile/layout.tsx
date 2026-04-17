@@ -6,7 +6,7 @@ import { Noto_Sans, Outfit, Roboto_Slab, JetBrains_Mono, Inter } from "next/font
 import { cookies } from "next/headers";
 import { Header } from "@/components/header";
 import { BottomNav } from "@/components/bottom-nav";
-import { Breadcrumb } from "@/components/breadcrumb";
+
 import ProfileGuard from "@/components/ProfileGuard";
 import { Toaster } from "@/components/ui/sonner";
 import { VideoProvider } from "@/components/video-context";

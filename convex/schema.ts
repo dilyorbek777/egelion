@@ -150,4 +150,16 @@ export default defineSchema({
     .index("by_conversation", ["conversationId"])
     .index("by_conversation_created", ["conversationId", "createdAt"])
     .index("by_sender", ["senderId"]),
+
+  documents: defineTable({
+    authorId: v.id("users"),
+    title: v.string(),
+    content: v.string(),
+    isPublic: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_created_at", ["createdAt"])
+    .index("by_updated_at", ["updatedAt"]),
 });

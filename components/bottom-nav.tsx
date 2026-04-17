@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Home,  Plus, User, Clapperboard, MessageCircle } from "lucide-react";
+import { Home,  Plus, User, Clapperboard, MessageCircle, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
+  { href: "/notion", icon: FileText, label: "Documents" },
   { href: "/videos", icon: Clapperboard, label: "Videos" },
   { href: "/create-post", icon: Plus, label: "Create" },
   { href: "/messages", icon: MessageCircle, label: "Messages" },
