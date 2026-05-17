@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
-  { href: "/notion", icon: FileText, label: "Documents" },
+  // { href: "/notion", icon: FileText, label: "Documents" },
   { href: "/videos", icon: Clapperboard, label: "Videos" },
   { href: "/create-post", icon: Plus, label: "Create" },
   { href: "/messages", icon: MessageCircle, label: "Messages" },

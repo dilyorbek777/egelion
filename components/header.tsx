@@ -42,7 +42,6 @@ export function Header() {
 
   const navItems = [
     { href: "/", icon: Home, label: "Home" },
-    { href: "/notion", icon: FileText, label: "Documents" },
     { href: "/videos", icon: Video, label: "Videos" },
     { href: "/messages", icon: MessageCircle, label: "Messages" },
     ...(dbUser ? [{ href: `/profile/${dbUser.username}`, icon: User, label: "Profile" }] : []),
