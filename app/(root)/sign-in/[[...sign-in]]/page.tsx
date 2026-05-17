@@ -10,21 +10,21 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 export default async function SignInPage() {
   const userCount = await convex.query(api.users.getUserCount, {});
   const postsCount = await convex.query(api.posts.getPostsCount, {});
-  
+
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 dark:from-background dark:via-background dark:to-primary/10 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          
+
           {/* Left Panel - Branding */}
           <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
             <div className="flex items-center justify-center lg:justify-start gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                <Image 
-                  src="/logo.png" 
-                  alt="Egelion" 
-                  width={48} 
+                <Image
+                  src="/logo.png"
+                  alt="Egelion"
+                  width={48}
                   height={48}
                   className="relative"
                 />
@@ -79,9 +79,9 @@ export default async function SignInPage() {
           {/* Right Panel - Sign In Card */}
           <div className="order-1 lg:order-2">
             <div className="relative">
-              <div className="absolute -inset-1 bg-linear-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-xl" />
               <div className="relative bg-card/80 backdrop-blur-xl rounded-3xl border border-border/50 p-6 lg:p-8 shadow-2xl">
-                <div className="space-y-6">
+                <div className="absolute -inset-1 bg-linear-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-xl" />
+                <div className="space-y-6 mx-auto w-fit">
                   {/* Mobile Logo */}
                   <div className="lg:hidden text-center space-y-4">
                     <div className="flex items-center justify-center gap-3">
@@ -91,10 +91,12 @@ export default async function SignInPage() {
                   </div>
 
                   {/* Sign In Component */}
-                  <SignIn
-                    appearance={CLERK_APPEARANCE}
-                    fallbackRedirectUrl="/"
-                  />
+                  <div className="mx-auto">
+                    <SignIn
+                      appearance={CLERK_APPEARANCE}
+                      fallbackRedirectUrl="/"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
