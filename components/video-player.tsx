@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useVideo } from "./video-context";
-import { Play } from "lucide-react";
+import { Play, VolumeX, Volume2 } from "lucide-react";
 
 interface VideoPlayerProps {
   src: string;
@@ -11,7 +11,7 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ src, postId }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { registerVideo, unregisterVideo, setPlayingVideo, playingVideoId } = useVideo();
+  const { registerVideo, unregisterVideo, setPlayingVideo, playingVideoId, isMuted, setIsMuted } = useVideo();
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
 
@@ -25,6 +25,47 @@ export function VideoPlayer({ src, postId }: VideoPlayerProps) {
     registerVideo(postId, pauseFn);
     return () => unregisterVideo(postId);
   }, [postId, registerVideo, unregisterVideo]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = isMuted;
+    }
+  }, [isMuted]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Video entered viewport - play it
+            video.play().then(() => {
+              setIsPlaying(true);
+              setPlayingVideo(postId);
+            }).catch(() => {
+              // Autoplay might be blocked, that's okay
+            });
+          } else {
+            // Video left viewport - pause it
+            video.pause();
+            setIsPlaying(false);
+          }
+        });
+      },
+      {
+        threshold: 0.5, // Play when 50% of video is visible
+      }
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [postId, setPlayingVideo]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -56,6 +97,10 @@ export function VideoPlayer({ src, postId }: VideoPlayerProps) {
     }
   };
 
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
   return (
     <div className="relative w-full" onClick={handleClick}>
       <video
@@ -64,7 +109,10 @@ export function VideoPlayer({ src, postId }: VideoPlayerProps) {
         className="w-full max-h-[67vh] object-cover rounded-lg"
         onPlay={handlePlay}
         onPause={handlePause}
-        playsInline
+        autoPlay
+        loop
+        muted={isMuted}
+        playsInline 
         preload="metadata"
       />
       {showPlayIcon && (
@@ -80,6 +128,16 @@ export function VideoPlayer({ src, postId }: VideoPlayerProps) {
           )}
         </div>
       )}
+      <button
+        onClick={toggleMute}
+        className="absolute top-18 right-4 z-30 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-md transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
+      >
+        {isMuted ? (
+          <VolumeX className="h-5 w-5" />
+        ) : (
+          <Volume2 className="h-5 w-5" />
+        )}
+      </button>
     </div>
   );
 }

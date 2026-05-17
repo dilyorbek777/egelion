@@ -7,12 +7,15 @@ type VideoContextType = {
   setPlayingVideo: (id: string | null) => void;
   registerVideo: (id: string, pauseFn: () => void) => void;
   unregisterVideo: (id: string) => void;
+  isMuted: boolean;
+  setIsMuted: (muted: boolean) => void;
 };
 
 const VideoContext = createContext<VideoContextType | null>(null);
 
 export function VideoProvider({ children }: { children: ReactNode }) {
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRefs = useRef<Map<string, () => void>>(new Map());
   const pendingPauseId = useRef<string | null>(null);
 
@@ -51,6 +54,8 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         setPlayingVideo,
         registerVideo,
         unregisterVideo,
+        isMuted,
+        setIsMuted,
       }}
     >
       {children}
